@@ -1,0 +1,957 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>Built to Fix Fragmentation — AMD Marketing Command + AMD Operations</title>
+<meta name="description" content="American Muscle Docks &amp; Fabrication — Canopy Fest AI 2026">
+<style>
+  /* Carlito — metrically identical to Calibri, which the deck is set in but
+     which browsers cannot use even where Office has installed it. Bundled so
+     every machine lays the body text out exactly as PowerPoint does.
+     SIL Open Font License 1.1, see assets/fonts/Carlito-OFL-LICENSE.txt */
+  @font-face{
+    font-family:'Carlito';font-style:normal;font-weight:400;font-display:block;
+    src:url('assets/fonts/carlito-latin-400-normal.woff2') format('woff2');
+  }
+  @font-face{
+    font-family:'Carlito';font-style:normal;font-weight:700;font-display:block;
+    src:url('assets/fonts/carlito-latin-700-normal.woff2') format('woff2');
+  }
+  @font-face{
+    font-family:'Carlito';font-style:italic;font-weight:400;font-display:block;
+    src:url('assets/fonts/carlito-latin-400-italic.woff2') format('woff2');
+  }
+  @font-face{
+    font-family:'Carlito';font-style:italic;font-weight:700;font-display:block;
+    src:url('assets/fonts/carlito-latin-700-italic.woff2') format('woff2');
+  }
+
+  :root{
+    --amd-red:#CD0006;
+    --amd-dark:#1A1A1A;
+    --amd-grey:#7A7A7A;
+    --stage-w:1280px;
+    --stage-h:720px;
+    --scale:1;
+    --shell:#0b0b0c;
+  }
+  *{box-sizing:border-box}
+  html,body{height:100%}
+  body{
+    margin:0;background:var(--shell);color:#fff;overflow:hidden;
+    font-family:'Carlito','Calibri','Segoe UI','Helvetica Neue',Arial,sans-serif;
+    -webkit-font-smoothing:antialiased;
+  }
+
+  /* ---------- stage ---------- */
+  #deck{position:fixed;inset:0;display:grid;place-items:center}
+  #stage{
+    position:relative;width:var(--stage-w);height:var(--stage-h);
+    transform:scale(var(--scale));transform-origin:center center;
+    box-shadow:0 24px 80px rgba(0,0,0,.65);
+  }
+  .slide{
+    position:absolute;inset:0;overflow:hidden;
+    opacity:0;visibility:hidden;pointer-events:none;
+    transition:opacity .34s ease;
+  }
+  .slide.active{opacity:1;visibility:visible;pointer-events:auto}
+  body.no-anim .slide{transition:none}
+
+  .sh{position:absolute}
+  .tx{display:flex;flex-direction:column;width:100%;height:100%}
+  .pp{margin:0;line-height:1.18}
+  .bu{display:inline-block}
+  img{-webkit-user-drag:none}
+  a.lnk{color:inherit;text-decoration:underline;text-underline-offset:.12em}
+  a.lnk:hover{text-decoration-thickness:2px}
+  .vidwrap{overflow:hidden;background:#000}
+  .slidevid{width:100%;height:100%;object-fit:cover;display:block}
+
+  /* ---------- chrome ---------- */
+  #bar{
+    position:fixed;left:0;right:0;bottom:0;height:46px;z-index:30;
+    display:flex;align-items:center;gap:14px;padding:0 16px;
+    background:linear-gradient(to top,rgba(0,0,0,.92),rgba(0,0,0,0));
+    opacity:0;transition:opacity .25s;pointer-events:none;
+  }
+  body.ui #bar{opacity:1;pointer-events:auto}
+  #bar button{
+    appearance:none;border:1px solid #3a3a3d;background:#161618;color:#e8e8ea;
+    font:600 12px/1 inherit;letter-spacing:.06em;text-transform:uppercase;
+    padding:8px 12px;border-radius:6px;cursor:pointer;transition:.15s;
+  }
+  #bar button:hover{background:var(--amd-red);border-color:var(--amd-red);color:#fff}
+  #count{font:600 12px/1 inherit;letter-spacing:.1em;color:#9a9aa0;min-width:62px;text-align:center}
+  #track{flex:1;height:3px;background:#2a2a2d;border-radius:2px;overflow:hidden}
+  #fill{height:100%;width:0;background:var(--amd-red);transition:width .3s}
+  #hint{font:500 11px/1 inherit;color:#5e5e66;letter-spacing:.06em}
+
+  .edge{
+    position:fixed;top:0;bottom:46px;width:12%;max-width:170px;z-index:20;cursor:pointer;
+    border:0;background:transparent;opacity:0;transition:opacity .2s;
+    display:grid;place-items:center;color:#fff;
+  }
+  .edge:hover{opacity:1;background:linear-gradient(var(--dir),rgba(0,0,0,.45),transparent)}
+  #prev{left:0;--dir:to right}
+  #next{right:0;--dir:to left}
+  .edge svg{width:34px;height:34px;filter:drop-shadow(0 2px 6px rgba(0,0,0,.6))}
+
+  /* ---------- overview ---------- */
+  #grid{
+    position:fixed;inset:0;z-index:60;background:#111113;overflow:auto;
+    padding:28px 28px 40px;display:none;
+  }
+  body.grid-open #grid{display:block}
+  #grid h2{
+    margin:0 0 20px;font:700 13px/1 inherit;letter-spacing:.22em;text-transform:uppercase;color:#8a8a90;
+  }
+  #gridItems{
+    display:grid;gap:18px;grid-template-columns:repeat(auto-fill,minmax(230px,1fr));
+  }
+  .thumb{
+    border:1px solid #2c2c30;border-radius:8px;overflow:hidden;background:#0d0d0f;
+    cursor:pointer;text-align:left;padding:0;color:inherit;font:inherit;transition:.15s;
+  }
+  .thumb:hover,.thumb:focus-visible{border-color:var(--amd-red);transform:translateY(-2px);outline:none}
+  .thumb .cap{padding:10px 12px 12px;border-top:1px solid #222226}
+  .thumb .eb{font:700 9px/1.3 inherit;letter-spacing:.14em;text-transform:uppercase;color:var(--amd-red)}
+  .thumb .tt{font:600 13px/1.3 inherit;color:#e4e4e8;margin-top:5px}
+  .thumb .nm{float:right;font:600 11px/1 inherit;color:#5e5e66}
+  .thumb .shot{position:relative;width:100%;aspect-ratio:16/9;overflow:hidden}
+  .thumb .shot > .mini{
+    position:absolute;top:0;left:0;width:1280px;height:720px;transform-origin:top left;
+  }
+
+  /* ---------- notes ---------- */
+  #notes{
+    position:fixed;right:16px;bottom:62px;width:340px;max-height:42vh;overflow:auto;z-index:40;
+    background:rgba(16,16,18,.97);border:1px solid #2e2e33;border-radius:10px;padding:14px 16px;
+    display:none;box-shadow:0 18px 50px rgba(0,0,0,.6);
+  }
+  body.notes-open #notes{display:block}
+  #notes h3{margin:0 0 8px;font:700 10px/1 inherit;letter-spacing:.2em;text-transform:uppercase;color:var(--amd-red)}
+  #notes p{margin:0;font-size:13.5px;line-height:1.55;color:#c9c9cf}
+
+  /* ---------- help ---------- */
+  #help{
+    position:fixed;inset:0;z-index:70;display:none;place-items:center;background:rgba(0,0,0,.78);
+    padding:24px;
+  }
+  body.help-open #help{display:grid}
+  #help .card{
+    background:#121214;border:1px solid #2e2e33;border-radius:12px;padding:26px 30px;max-width:460px;width:100%;
+  }
+  #help h3{margin:0 0 18px;font:700 12px/1 inherit;letter-spacing:.2em;text-transform:uppercase;color:var(--amd-red)}
+  #help dl{display:grid;grid-template-columns:auto 1fr;gap:10px 18px;margin:0}
+  #help dt{font:600 12px/1.4 inherit}
+  #help kbd{
+    display:inline-block;background:#1e1e22;border:1px solid #3a3a40;border-bottom-width:2px;
+    border-radius:5px;padding:3px 7px;font:600 11px/1 ui-monospace,Menlo,monospace;color:#e6e6ea;
+  }
+  #help dd{margin:0;font-size:13px;color:#a9a9b1;line-height:1.4}
+
+  @media (max-width:760px){
+    #notes{left:16px;width:auto}
+    #hint{display:none}
+    .edge{opacity:.55;background:none}
+  }
+
+  /* ---------- print ---------- */
+  @media print{
+    @page{size:13.333in 7.5in;margin:0}
+    body{background:#fff;overflow:visible}
+    #bar,.edge,#grid,#notes,#help{display:none!important}
+    #deck{position:static;display:block}
+    #stage{transform:none;width:13.333in;height:auto;box-shadow:none}
+    .slide{
+      position:relative;inset:auto;opacity:1!important;visibility:visible!important;
+      width:1280px;height:720px;page-break-after:always;break-after:page;
+      transform:scale(calc(13.333in / 1280px));transform-origin:top left;
+    }
+  }
+</style>
+</head>
+<body class="ui">
+
+<div id="deck">
+  <div id="stage">
+<section class="slide" id="slide-1" data-n="1" style="background:#CD0006">
+<div class="sh" style="left:59.52px;top:49.92px;width:352.32px;height:95.04px"><img src="assets/img/image1.jpg" alt="American Muscle Docks &amp; Fabrication logo" style="width:100%;height:100%;object-fit:fill;display:block"></div>
+<div class="sh" style="left:67.20px;top:158.40px;width:787.20px;height:28.80px;border-radius:5.00px"><div class="tx" style="padding:0.00px 0.00px 0.00px 0.00px;justify-content:center"><p class="pp" style="text-align:left"><span style="font-size:14.67px;font-family:'Carlito','Calibri','Segoe UI','Helvetica Neue',Arial,sans-serif;font-weight:700;color:#FFFFFF">AMERICAN MUSCLE DOCKS &amp; FABRICATION&nbsp; /&nbsp; WELLSBURG, WV&nbsp; /&nbsp; CANOPY FEST AI CONFERENCE</span></p></div></div>
+<div class="sh" style="left:67.20px;top:197.76px;width:729.60px;height:163.20px;border-radius:5.00px"><div class="tx" style="padding:0.00px 0.00px 0.00px 0.00px;justify-content:flex-start"><p class="pp" style="text-align:left"><span style="font-size:72.00px;font-family:'Impact','Haettenschweiler','Anton','Arial Narrow Bold',sans-serif;color:#FFFFFF">BUILT TO FIX</span></p><p class="pp" style="text-align:left"><span style="font-size:72.00px;font-family:'Impact','Haettenschweiler','Anton','Arial Narrow Bold',sans-serif;color:#FFFFFF">FRAGMENTATION</span></p></div></div>
+<div class="sh" style="left:67.20px;top:380.16px;width:729.60px;height:36.48px;border-radius:5.00px"><div class="tx" style="padding:0.00px 0.00px 0.00px 0.00px;justify-content:center"><p class="pp" style="text-align:left"><span style="font-size:24.00px;font-family:'Carlito','Calibri','Segoe UI','Helvetica Neue',Arial,sans-serif;color:#FFFFFF">AMD Marketing Command + AMD Operations</span></p></div></div>
+<div class="sh" style="left:67.20px;top:539.87px;width:633.60px;height:28.80px;background:#000000;border-radius:5.00px"></div>
+<div class="sh" style="left:81.60px;top:539.87px;width:153.60px;height:28.80px;border-radius:5.00px"><div class="tx" style="padding:0.00px 0.00px 0.00px 0.00px;justify-content:center"><p class="pp" style="text-align:left"><span style="font-size:13.33px;font-family:'Carlito','Calibri','Segoe UI','Helvetica Neue',Arial,sans-serif;font-weight:700;color:#B3B3B3;letter-spacing:1.333px">TITLE</span></p></div></div>
+<div class="sh" style="left:240.00px;top:539.87px;width:446.40px;height:28.80px;border-radius:5.00px"><div class="tx" style="padding:0.00px 0.00px 0.00px 0.00px;justify-content:center"><p class="pp" style="text-align:left"><span style="font-size:14.67px;font-family:'Carlito','Calibri','Segoe UI','Helvetica Neue',Arial,sans-serif;font-weight:700;color:#FFFFFF">BUILT TO FIX FRAGMENTATION</span></p></div></div>
+<div class="sh" style="left:67.20px;top:570.59px;width:633.60px;height:28.80px;background:#000000;border-radius:5.00px"></div>
+<div class="sh" style="left:81.60px;top:570.59px;width:153.60px;height:28.80px;border-radius:5.00px"><div class="tx" style="padding:0.00px 0.00px 0.00px 0.00px;justify-content:center"><p class="pp" style="text-align:left"><span style="font-size:13.33px;font-family:'Carlito','Calibri','Segoe UI','Helvetica Neue',Arial,sans-serif;font-weight:700;color:#B3B3B3;letter-spacing:1.333px">DRAWN BY</span></p></div></div>
+<div class="sh" style="left:240.00px;top:570.59px;width:446.40px;height:28.80px;border-radius:5.00px"><div class="tx" style="padding:0.00px 0.00px 0.00px 0.00px;justify-content:center"><p class="pp" style="text-align:left"><span style="font-size:14.67px;font-family:'Carlito','Calibri','Segoe UI','Helvetica Neue',Arial,sans-serif;font-weight:700;color:#FFFFFF">CHAD, MARKETING </span></p></div></div>
+<div class="sh" style="left:67.20px;top:601.31px;width:633.60px;height:28.80px;background:#000000;border-radius:5.00px"></div>
+<div class="sh" style="left:81.60px;top:601.31px;width:153.60px;height:28.80px;border-radius:5.00px"><div class="tx" style="padding:0.00px 0.00px 0.00px 0.00px;justify-content:center"><p class="pp" style="text-align:left"><span style="font-size:13.33px;font-family:'Carlito','Calibri','Segoe UI','Helvetica Neue',Arial,sans-serif;font-weight:700;color:#B3B3B3;letter-spacing:1.333px">DATE</span></p></div></div>
+<div class="sh" style="left:240.00px;top:601.31px;width:446.40px;height:28.80px;border-radius:5.00px"><div class="tx" style="padding:0.00px 0.00px 0.00px 0.00px;justify-content:center"><p class="pp" style="text-align:left"><span style="font-size:14.67px;font-family:'Carlito','Calibri','Segoe UI','Helvetica Neue',Arial,sans-serif;font-weight:700;color:#FFFFFF">CANOPY FEST AI 2026</span></p></div></div>
+<div class="sh" style="left:67.20px;top:632.03px;width:633.60px;height:28.80px;background:#000000;border-radius:5.00px"></div>
+<div class="sh" style="left:81.60px;top:632.03px;width:153.60px;height:28.80px;border-radius:5.00px"><div class="tx" style="padding:0.00px 0.00px 0.00px 0.00px;justify-content:center"><p class="pp" style="text-align:left"><span style="font-size:13.33px;font-family:'Carlito','Calibri','Segoe UI','Helvetica Neue',Arial,sans-serif;font-weight:700;color:#B3B3B3;letter-spacing:1.333px">SCALE</span></p></div></div>
+<div class="sh" style="left:240.00px;top:632.03px;width:446.40px;height:28.80px;border-radius:5.00px"><div class="tx" style="padding:0.00px 0.00px 0.00px 0.00px;justify-content:center"><p class="pp" style="text-align:left"><span style="font-size:14.67px;font-family:'Carlito','Calibri','Segoe UI','Helvetica Neue',Arial,sans-serif;font-weight:700;color:#FFFFFF">2 APPS, 1 COMPANY</span></p></div></div>
+<div class="sh" style="left:481.04px;top:176.54px;width:816.00px;height:543.46px"><img src="assets/img/image3.png" alt="Picture 20" style="width:100%;height:100%;object-fit:fill;display:block"></div>
+</section>
+<section class="slide" id="slide-2" data-n="2" style="background:#1A1A1A">
+<div class="sh" style="left:57.60px;top:658.56px;width:162.24px;height:44.16px"><img src="assets/img/image2.png" alt="American Muscle Docks &amp; Fabrication logo" style="width:100%;height:100%;object-fit:fill;display:block"></div>
+<div class="sh" style="left:240.00px;top:662.40px;width:768.00px;height:36.48px"><div class="tx" style="padding:0.00px 0.00px 0.00px 0.00px;justify-content:center"><p class="pp" style="text-align:left"><span style="font-size:13.33px;font-family:'Carlito','Calibri','Segoe UI','Helvetica Neue',Arial,sans-serif;color:#B3B3B3">Built to Fix Fragmentation&nbsp; |&nbsp; Built Tough. Built to Last.®</span></p></div></div>
+<div class="sh" style="left:1166.40px;top:662.40px;width:57.60px;height:36.48px"><div class="tx" style="padding:0.00px 0.00px 0.00px 0.00px;justify-content:center"><p class="pp" style="text-align:right"><span style="font-size:13.33px;font-family:'Carlito','Calibri','Segoe UI','Helvetica Neue',Arial,sans-serif;color:#7A7A7A">2</span></p></div></div>
+<div class="sh" style="left:57.60px;top:40.32px;width:864.00px;height:36.48px;border-radius:5.00px"><div class="tx" style="padding:0.00px 0.00px 0.00px 0.00px;justify-content:center"><p class="pp" style="text-align:left"><span style="font-size:18.67px;font-family:'Carlito','Calibri','Segoe UI','Helvetica Neue',Arial,sans-serif;font-weight:700;color:#CD0006;letter-spacing:4.000px">MARKETING COMMAND&nbsp; /&nbsp; THE PROBLEM</span></p></div></div>
+<div class="sh" style="left:57.60px;top:78.72px;width:1161.60px;height:81.60px;border-radius:5.00px"><div class="tx" style="padding:0.00px 0.00px 0.00px 0.00px;justify-content:flex-start"><p class="pp" style="text-align:left"><span style="font-size:50.67px;font-family:'Impact','Haettenschweiler','Anton','Arial Narrow Bold',sans-serif;color:#FFFFFF">More Than Ten Tools. No Single View</span></p></div></div>
+<div class="sh" style="left:1166.40px;top:662.40px;width:57.60px;height:36.48px"><div class="tx" style="padding:0.00px 0.00px 0.00px 0.00px;justify-content:center"><p class="pp" style="text-align:right"><span style="font-size:13.33px;font-family:'Carlito','Calibri','Segoe UI','Helvetica Neue',Arial,sans-serif;color:#7A7A7A">2</span></p></div></div>
+<div class="sh" style="left:57.60px;top:187.20px;width:213.12px;height:86.40px;background:#000000;border:1.33px solid #4D4D4D;box-sizing:border-box;border-radius:5.00px"></div>
+<div class="sh" style="left:76.80px;top:187.20px;width:174.72px;height:86.40px;border-radius:5.00px"><div class="tx" style="padding:0.00px 0.00px 0.00px 0.00px;justify-content:center"><p class="pp" style="text-align:center"><span style="font-size:24.00px;font-family:'Carlito','Calibri','Segoe UI','Helvetica Neue',Arial,sans-serif;font-weight:700;color:#FFFFFF">QuickBooks</span></p></div></div>
+<div class="sh" style="left:294.72px;top:187.20px;width:213.12px;height:86.40px;background:#000000;border:1.33px solid #4D4D4D;box-sizing:border-box;border-radius:5.00px"></div>
+<div class="sh" style="left:313.92px;top:187.20px;width:174.72px;height:86.40px;border-radius:5.00px"><div class="tx" style="padding:0.00px 0.00px 0.00px 0.00px;justify-content:center"><p class="pp" style="text-align:center"><span style="font-size:24.00px;font-family:'Carlito','Calibri','Segoe UI','Helvetica Neue',Arial,sans-serif;font-weight:700;color:#FFFFFF">Shopify</span></p></div></div>
+<div class="sh" style="left:531.84px;top:187.20px;width:213.12px;height:86.40px;background:#000000;border:1.33px solid #4D4D4D;box-sizing:border-box;border-radius:5.00px"></div>
+<div class="sh" style="left:551.04px;top:187.20px;width:174.72px;height:86.40px;border-radius:5.00px"><div class="tx" style="padding:0.00px 0.00px 0.00px 0.00px;justify-content:center"><p class="pp" style="text-align:center"><span style="font-size:24.00px;font-family:'Carlito','Calibri','Segoe UI','Helvetica Neue',Arial,sans-serif;font-weight:700;color:#FFFFFF">Google Analytics</span></p></div></div>
+<div class="sh" style="left:768.96px;top:187.20px;width:213.12px;height:86.40px;background:#000000;border:1.33px solid #4D4D4D;box-sizing:border-box;border-radius:5.00px"></div>
+<div class="sh" style="left:788.16px;top:187.20px;width:174.72px;height:86.40px;border-radius:5.00px"><div class="tx" style="padding:0.00px 0.00px 0.00px 0.00px;justify-content:center"><p class="pp" style="text-align:center"><span style="font-size:24.00px;font-family:'Carlito','Calibri','Segoe UI','Helvetica Neue',Arial,sans-serif;font-weight:700;color:#FFFFFF">Google Ads</span></p></div></div>
+<div class="sh" style="left:1006.08px;top:187.20px;width:213.12px;height:86.40px;background:#000000;border:1.33px solid #4D4D4D;box-sizing:border-box;border-radius:5.00px"></div>
+<div class="sh" style="left:1025.28px;top:187.20px;width:174.72px;height:86.40px;border-radius:5.00px"><div class="tx" style="padding:0.00px 0.00px 0.00px 0.00px;justify-content:center"><p class="pp" style="text-align:center"><span style="font-size:24.00px;font-family:'Carlito','Calibri','Segoe UI','Helvetica Neue',Arial,sans-serif;font-weight:700;color:#FFFFFF">Meta Ads</span></p></div></div>
+<div class="sh" style="left:57.60px;top:297.60px;width:213.12px;height:86.40px;background:#000000;border:1.33px solid #4D4D4D;box-sizing:border-box;border-radius:5.00px"></div>
+<div class="sh" style="left:76.80px;top:297.60px;width:174.72px;height:86.40px;border-radius:5.00px"><div class="tx" style="padding:0.00px 0.00px 0.00px 0.00px;justify-content:center"><p class="pp" style="text-align:center"><span style="font-size:24.00px;font-family:'Carlito','Calibri','Segoe UI','Helvetica Neue',Arial,sans-serif;font-weight:700;color:#FFFFFF">Meta Business Suite</span></p></div></div>
+<div class="sh" style="left:294.72px;top:297.60px;width:213.12px;height:86.40px;background:#000000;border:1.33px solid #4D4D4D;box-sizing:border-box;border-radius:5.00px"></div>
+<div class="sh" style="left:313.92px;top:297.60px;width:174.72px;height:86.40px;border-radius:5.00px"><div class="tx" style="padding:0.00px 0.00px 0.00px 0.00px;justify-content:center"><p class="pp" style="text-align:center"><span style="font-size:24.00px;font-family:'Carlito','Calibri','Segoe UI','Helvetica Neue',Arial,sans-serif;font-weight:700;color:#FFFFFF">Judge.me</span></p></div></div>
+<div class="sh" style="left:531.84px;top:297.60px;width:213.12px;height:86.40px;background:#000000;border:1.33px solid #4D4D4D;box-sizing:border-box;border-radius:5.00px"></div>
+<div class="sh" style="left:551.04px;top:297.60px;width:174.72px;height:86.40px;border-radius:5.00px"><div class="tx" style="padding:0.00px 0.00px 0.00px 0.00px;justify-content:center"><p class="pp" style="text-align:center"><span style="font-size:24.00px;font-family:'Carlito','Calibri','Segoe UI','Helvetica Neue',Arial,sans-serif;font-weight:700;color:#FFFFFF">Search Console</span></p></div></div>
+<div class="sh" style="left:768.96px;top:297.60px;width:213.12px;height:86.40px;background:#000000;border:1.33px solid #4D4D4D;box-sizing:border-box;border-radius:5.00px"></div>
+<div class="sh" style="left:788.16px;top:297.60px;width:174.72px;height:86.40px;border-radius:5.00px"><div class="tx" style="padding:0.00px 0.00px 0.00px 0.00px;justify-content:center"><p class="pp" style="text-align:center"><span style="font-size:24.00px;font-family:'Carlito','Calibri','Segoe UI','Helvetica Neue',Arial,sans-serif;font-weight:700;color:#FFFFFF">Late</span></p></div></div>
+<div class="sh" style="left:1006.08px;top:297.60px;width:213.12px;height:86.40px;background:#000000;border:1.33px solid #4D4D4D;box-sizing:border-box;border-radius:5.00px"></div>
+<div class="sh" style="left:1025.28px;top:297.60px;width:174.72px;height:86.40px;border-radius:5.00px"><div class="tx" style="padding:0.00px 0.00px 0.00px 0.00px;justify-content:center"><p class="pp" style="text-align:center"><span style="font-size:24.00px;font-family:'Carlito','Calibri','Segoe UI','Helvetica Neue',Arial,sans-serif;font-weight:700;color:#FFFFFF">Spreadsheets</span></p></div></div>
+<div class="sh" style="left:57.60px;top:412.80px;width:67.20px;height:67.20px;background:#CD0006;border-radius:5.00px"></div>
+<div class="sh" style="left:73.73px;top:428.93px;width:34.94px;height:34.94px"><img src="assets/img/image4.png" alt="" style="width:100%;height:100%;object-fit:fill;display:block"></div>
+<div class="sh" style="left:148.80px;top:412.80px;width:1070.40px;height:67.20px;border-radius:5.00px"><div class="tx" style="padding:0.00px 0.00px 0.00px 0.00px;justify-content:center"><p class="pp" style="text-align:left"><span style="font-size:29.33px;font-family:'Carlito','Calibri','Segoe UI','Helvetica Neue',Arial,sans-serif;font-weight:700;color:#FFFFFF">Marketing data spread across disconnected tools</span></p></div></div>
+<div class="sh" style="left:57.60px;top:523.68px;width:13.44px;height:13.44px;background:#CD0006"></div>
+<div class="sh" style="left:94.08px;top:499.20px;width:520.32px;height:62.40px;border-radius:5.00px"><div class="tx" style="padding:0.00px 0.00px 0.00px 0.00px;justify-content:center"><p class="pp" style="text-align:left"><span style="font-size:26.67px;font-family:'Carlito','Calibri','Segoe UI','Helvetica Neue',Arial,sans-serif;color:#FFFFFF">Every channel lived in a different tool</span></p></div></div>
+<div class="sh" style="left:57.60px;top:561.60px;width:556.80px;height:1.00px;background:#4D4D4D"></div>
+<div class="sh" style="left:57.60px;top:586.08px;width:13.44px;height:13.44px;background:#CD0006"></div>
+<div class="sh" style="left:94.08px;top:561.60px;width:520.32px;height:62.40px;border-radius:5.00px"><div class="tx" style="padding:0.00px 0.00px 0.00px 0.00px;justify-content:center"><p class="pp" style="text-align:left"><span style="font-size:26.67px;font-family:'Carlito','Calibri','Segoe UI','Helvetica Neue',Arial,sans-serif;color:#FFFFFF">Every report meant logging into each one</span></p></div></div>
+<div class="sh" style="left:662.40px;top:523.68px;width:13.44px;height:13.44px;background:#CD0006"></div>
+<div class="sh" style="left:698.88px;top:499.20px;width:520.32px;height:62.40px;border-radius:5.00px"><div class="tx" style="padding:0.00px 0.00px 0.00px 0.00px;justify-content:center"><p class="pp" style="text-align:left"><span style="font-size:26.67px;font-family:'Carlito','Calibri','Segoe UI','Helvetica Neue',Arial,sans-serif;color:#FFFFFF">No shared view of how marketing performs</span></p></div></div>
+<div class="sh" style="left:662.40px;top:561.60px;width:556.80px;height:1.00px;background:#4D4D4D"></div>
+<div class="sh" style="left:662.40px;top:586.08px;width:13.44px;height:13.44px;background:#CD0006"></div>
+<div class="sh" style="left:698.88px;top:561.60px;width:520.32px;height:62.40px;border-radius:5.00px"><div class="tx" style="padding:0.00px 0.00px 0.00px 0.00px;justify-content:center"><p class="pp" style="text-align:left"><span style="font-size:26.67px;font-family:'Carlito','Calibri','Segoe UI','Helvetica Neue',Arial,sans-serif;color:#FFFFFF">Numbers compiled by hand</span></p></div></div>
+</section>
+<section class="slide" id="slide-3" data-n="3" style="background:#FFFFFF">
+<div class="sh" style="left:57.60px;top:658.56px;width:162.24px;height:44.16px"><img src="assets/img/image2.png" alt="American Muscle Docks &amp; Fabrication logo" style="width:100%;height:100%;object-fit:fill;display:block"></div>
+<div class="sh" style="left:240.00px;top:662.40px;width:768.00px;height:36.48px"><div class="tx" style="padding:0.00px 0.00px 0.00px 0.00px;justify-content:center"><p class="pp" style="text-align:left"><span style="font-size:13.33px;font-family:'Carlito','Calibri','Segoe UI','Helvetica Neue',Arial,sans-serif;color:#7A7A7A">Built to Fix Fragmentation&nbsp; |&nbsp; Built Tough. Built to Last.®</span></p></div></div>
+<div class="sh" style="left:1166.40px;top:662.40px;width:57.60px;height:36.48px"><div class="tx" style="padding:0.00px 0.00px 0.00px 0.00px;justify-content:center"><p class="pp" style="text-align:right"><span style="font-size:13.33px;font-family:'Carlito','Calibri','Segoe UI','Helvetica Neue',Arial,sans-serif;color:#7A7A7A">3</span></p></div></div>
+<div class="sh" style="left:57.60px;top:40.32px;width:864.00px;height:36.48px;border-radius:5.00px"><div class="tx" style="padding:0.00px 0.00px 0.00px 0.00px;justify-content:center"><p class="pp" style="text-align:left"><span style="font-size:18.67px;font-family:'Carlito','Calibri','Segoe UI','Helvetica Neue',Arial,sans-serif;font-weight:700;color:#CD0006;letter-spacing:4.000px">MARKETING COMMAND&nbsp; /&nbsp; THE SOLUTION</span></p></div></div>
+<div class="sh" style="left:57.60px;top:78.72px;width:1161.60px;height:81.60px;border-radius:5.00px"><div class="tx" style="padding:0.00px 0.00px 0.00px 0.00px;justify-content:flex-start"><p class="pp" style="text-align:left"><span style="font-size:50.67px;font-family:'Impact','Haettenschweiler','Anton','Arial Narrow Bold',sans-serif;color:#000000">One Login. Every Channel</span></p></div></div>
+<div class="sh" style="left:1166.40px;top:662.40px;width:57.60px;height:36.48px"><div class="tx" style="padding:0.00px 0.00px 0.00px 0.00px;justify-content:center"><p class="pp" style="text-align:right"><span style="font-size:13.33px;font-family:'Carlito','Calibri','Segoe UI','Helvetica Neue',Arial,sans-serif;color:#7A7A7A">3</span></p></div></div>
+<div class="sh" style="left:57.60px;top:187.20px;width:220.80px;height:39.36px;background:#F2F2F2;border-radius:5.00px"></div>
+<div class="sh" style="left:76.80px;top:187.20px;width:192.00px;height:39.36px;border-radius:5.00px"><div class="tx" style="padding:0.00px 0.00px 0.00px 0.00px;justify-content:center"><p class="pp" style="text-align:left"><span style="font-size:21.33px;font-family:'Carlito','Calibri','Segoe UI','Helvetica Neue',Arial,sans-serif;font-weight:700;color:#1A1A1A">QuickBooks</span></p></div></div>
+<div class="sh" style="left:278.40px;top:206.88px;width:81.60px;height:192.00px;border-left:1.67px solid #B3B3B3"></div>
+<div class="sh" style="left:57.60px;top:235.20px;width:220.80px;height:39.36px;background:#F2F2F2;border-radius:5.00px"></div>
+<div class="sh" style="left:76.80px;top:235.20px;width:192.00px;height:39.36px;border-radius:5.00px"><div class="tx" style="padding:0.00px 0.00px 0.00px 0.00px;justify-content:center"><p class="pp" style="text-align:left"><span style="font-size:21.33px;font-family:'Carlito','Calibri','Segoe UI','Helvetica Neue',Arial,sans-serif;font-weight:700;color:#1A1A1A">Shopify</span></p></div></div>
+<div class="sh" style="left:278.40px;top:254.88px;width:81.60px;height:144.00px;border-left:1.67px solid #B3B3B3"></div>
+<div class="sh" style="left:57.60px;top:283.20px;width:220.80px;height:39.36px;background:#F2F2F2;border-radius:5.00px"></div>
+<div class="sh" style="left:76.80px;top:283.20px;width:192.00px;height:39.36px;border-radius:5.00px"><div class="tx" style="padding:0.00px 0.00px 0.00px 0.00px;justify-content:center"><p class="pp" style="text-align:left"><span style="font-size:21.33px;font-family:'Carlito','Calibri','Segoe UI','Helvetica Neue',Arial,sans-serif;font-weight:700;color:#1A1A1A">Google Analytics</span></p></div></div>
+<div class="sh" style="left:278.40px;top:302.88px;width:81.60px;height:96.00px;border-left:1.67px solid #B3B3B3"></div>
+<div class="sh" style="left:57.60px;top:331.20px;width:220.80px;height:39.36px;background:#F2F2F2;border-radius:5.00px"></div>
+<div class="sh" style="left:76.80px;top:331.20px;width:192.00px;height:39.36px;border-radius:5.00px"><div class="tx" style="padding:0.00px 0.00px 0.00px 0.00px;justify-content:center"><p class="pp" style="text-align:left"><span style="font-size:21.33px;font-family:'Carlito','Calibri','Segoe UI','Helvetica Neue',Arial,sans-serif;font-weight:700;color:#1A1A1A">Google Ads</span></p></div></div>
+<div class="sh" style="left:278.40px;top:350.88px;width:81.60px;height:48.00px;border-left:1.67px solid #B3B3B3"></div>
+<div class="sh" style="left:57.60px;top:379.20px;width:220.80px;height:39.36px;background:#F2F2F2;border-radius:5.00px"></div>
+<div class="sh" style="left:76.80px;top:379.20px;width:192.00px;height:39.36px;border-radius:5.00px"><div class="tx" style="padding:0.00px 0.00px 0.00px 0.00px;justify-content:center"><p class="pp" style="text-align:left"><span style="font-size:21.33px;font-family:'Carlito','Calibri','Segoe UI','Helvetica Neue',Arial,sans-serif;font-weight:700;color:#1A1A1A">Meta Ads</span></p></div></div>
+<div class="sh" style="left:278.40px;top:398.88px;width:81.60px;height:1.67px;background:#B3B3B3"></div>
+<div class="sh" style="left:57.60px;top:427.20px;width:220.80px;height:39.36px;background:#F2F2F2;border-radius:5.00px"></div>
+<div class="sh" style="left:76.80px;top:427.20px;width:192.00px;height:39.36px;border-radius:5.00px"><div class="tx" style="padding:0.00px 0.00px 0.00px 0.00px;justify-content:center"><p class="pp" style="text-align:left"><span style="font-size:21.33px;font-family:'Carlito','Calibri','Segoe UI','Helvetica Neue',Arial,sans-serif;font-weight:700;color:#1A1A1A">Meta Business Suite</span></p></div></div>
+<div class="sh" style="left:278.40px;top:398.88px;width:81.60px;height:48.00px;border-left:1.67px solid #B3B3B3"></div>
+<div class="sh" style="left:57.60px;top:475.20px;width:220.80px;height:39.36px;background:#F2F2F2;border-radius:5.00px"></div>
+<div class="sh" style="left:76.80px;top:475.20px;width:192.00px;height:39.36px;border-radius:5.00px"><div class="tx" style="padding:0.00px 0.00px 0.00px 0.00px;justify-content:center"><p class="pp" style="text-align:left"><span style="font-size:21.33px;font-family:'Carlito','Calibri','Segoe UI','Helvetica Neue',Arial,sans-serif;font-weight:700;color:#1A1A1A">Judge.me</span></p></div></div>
+<div class="sh" style="left:278.40px;top:398.88px;width:81.60px;height:96.00px;border-left:1.67px solid #B3B3B3"></div>
+<div class="sh" style="left:57.60px;top:523.20px;width:220.80px;height:39.36px;background:#F2F2F2;border-radius:5.00px"></div>
+<div class="sh" style="left:76.80px;top:523.20px;width:192.00px;height:39.36px;border-radius:5.00px"><div class="tx" style="padding:0.00px 0.00px 0.00px 0.00px;justify-content:center"><p class="pp" style="text-align:left"><span style="font-size:21.33px;font-family:'Carlito','Calibri','Segoe UI','Helvetica Neue',Arial,sans-serif;font-weight:700;color:#1A1A1A">Search Console</span></p></div></div>
+<div class="sh" style="left:278.40px;top:398.88px;width:81.60px;height:144.00px;border-left:1.67px solid #B3B3B3"></div>
+<div class="sh" style="left:57.60px;top:571.20px;width:220.80px;height:39.36px;background:#F2F2F2;border-radius:5.00px"></div>
+<div class="sh" style="left:76.80px;top:571.20px;width:192.00px;height:39.36px;border-radius:5.00px"><div class="tx" style="padding:0.00px 0.00px 0.00px 0.00px;justify-content:center"><p class="pp" style="text-align:left"><span style="font-size:21.33px;font-family:'Carlito','Calibri','Segoe UI','Helvetica Neue',Arial,sans-serif;font-weight:700;color:#1A1A1A">Late</span></p></div></div>
+<div class="sh" style="left:278.40px;top:398.88px;width:81.60px;height:192.00px;border-left:1.67px solid #B3B3B3"></div>
+<div class="sh" style="left:360.00px;top:317.28px;width:244.80px;height:163.20px;background:#CD0006;border-radius:5.00px"></div>
+<div class="sh" style="left:360.00px;top:317.28px;width:244.80px;height:163.20px;border-radius:5.00px"><div class="tx" style="padding:0.00px 0.00px 0.00px 0.00px;justify-content:center"><p class="pp" style="text-align:center"><span style="font-size:32.00px;font-family:'Carlito','Calibri','Segoe UI','Helvetica Neue',Arial,sans-serif;font-weight:700;color:#FFFFFF;letter-spacing:4.000px">AMD</span></p><p class="pp" style="text-align:center"><span style="font-size:29.33px;font-family:'Carlito','Calibri','Segoe UI','Helvetica Neue',Arial,sans-serif;font-weight:700;color:#FFFFFF">MARKETING COMMAND</span></p></div></div>
+<div class="sh" style="left:681.60px;top:187.20px;width:72.00px;height:72.00px;background:#CD0006;border-radius:5.00px"></div>
+<div class="sh" style="left:698.88px;top:204.48px;width:37.44px;height:37.44px"><img src="assets/img/image5.png" alt="" style="width:100%;height:100%;object-fit:fill;display:block"></div>
+<div class="sh" style="left:777.60px;top:187.20px;width:441.60px;height:36.48px;border-radius:5.00px"><div class="tx" style="padding:0.00px 0.00px 0.00px 0.00px;justify-content:center"><p class="pp" style="text-align:left"><span style="font-size:29.33px;font-family:'Carlito','Calibri','Segoe UI','Helvetica Neue',Arial,sans-serif;font-weight:700;color:#000000">One Secure Login</span></p></div></div>
+<div class="sh" style="left:777.60px;top:223.68px;width:441.60px;height:35.52px;border-radius:5.00px"><div class="tx" style="padding:0.00px 0.00px 0.00px 0.00px;justify-content:center"><p class="pp" style="text-align:left"><span style="font-size:24.00px;font-family:'Carlito','Calibri','Segoe UI','Helvetica Neue',Arial,sans-serif;color:#4D4D4D">Every tool behind a single password</span></p></div></div>
+<div class="sh" style="left:681.60px;top:304.32px;width:72.00px;height:72.00px;background:#CD0006;border-radius:5.00px"></div>
+<div class="sh" style="left:698.88px;top:321.60px;width:37.44px;height:37.44px"><img src="assets/img/image6.png" alt="" style="width:100%;height:100%;object-fit:fill;display:block"></div>
+<div class="sh" style="left:777.60px;top:304.32px;width:441.60px;height:36.48px;border-radius:5.00px"><div class="tx" style="padding:0.00px 0.00px 0.00px 0.00px;justify-content:center"><p class="pp" style="text-align:left"><span style="font-size:29.33px;font-family:'Carlito','Calibri','Segoe UI','Helvetica Neue',Arial,sans-serif;font-weight:700;color:#000000">Live Data via API</span></p></div></div>
+<div class="sh" style="left:777.60px;top:340.80px;width:441.60px;height:35.52px;border-radius:5.00px"><div class="tx" style="padding:0.00px 0.00px 0.00px 0.00px;justify-content:center"><p class="pp" style="text-align:left"><span style="font-size:24.00px;font-family:'Carlito','Calibri','Segoe UI','Helvetica Neue',Arial,sans-serif;color:#4D4D4D">Pulled straight from each platform</span></p></div></div>
+<div class="sh" style="left:681.60px;top:421.44px;width:72.00px;height:72.00px;background:#CD0006;border-radius:5.00px"></div>
+<div class="sh" style="left:698.88px;top:438.72px;width:37.44px;height:37.44px"><img src="assets/img/image7.png" alt="" style="width:100%;height:100%;object-fit:fill;display:block"></div>
+<div class="sh" style="left:777.60px;top:421.44px;width:441.60px;height:36.48px;border-radius:5.00px"><div class="tx" style="padding:0.00px 0.00px 0.00px 0.00px;justify-content:center"><p class="pp" style="text-align:left"><span style="font-size:29.33px;font-family:'Carlito','Calibri','Segoe UI','Helvetica Neue',Arial,sans-serif;font-weight:700;color:#000000">Always Up to Date</span></p></div></div>
+<div class="sh" style="left:777.60px;top:457.92px;width:441.60px;height:35.52px;border-radius:5.00px"><div class="tx" style="padding:0.00px 0.00px 0.00px 0.00px;justify-content:center"><p class="pp" style="text-align:left"><span style="font-size:24.00px;font-family:'Carlito','Calibri','Segoe UI','Helvetica Neue',Arial,sans-serif;color:#4D4D4D">No exports, no spreadsheets</span></p></div></div>
+<div class="sh" style="left:681.60px;top:538.56px;width:72.00px;height:72.00px;background:#CD0006;border-radius:5.00px"></div>
+<div class="sh" style="left:698.88px;top:555.84px;width:37.44px;height:37.44px"><img src="assets/img/image8.png" alt="" style="width:100%;height:100%;object-fit:fill;display:block"></div>
+<div class="sh" style="left:777.60px;top:538.56px;width:441.60px;height:36.48px;border-radius:5.00px"><div class="tx" style="padding:0.00px 0.00px 0.00px 0.00px;justify-content:center"><p class="pp" style="text-align:left"><span style="font-size:29.33px;font-family:'Carlito','Calibri','Segoe UI','Helvetica Neue',Arial,sans-serif;font-weight:700;color:#000000">Automatic Reporting</span></p></div></div>
+<div class="sh" style="left:777.60px;top:575.04px;width:441.60px;height:35.52px;border-radius:5.00px"><div class="tx" style="padding:0.00px 0.00px 0.00px 0.00px;justify-content:center"><p class="pp" style="text-align:left"><span style="font-size:24.00px;font-family:'Carlito','Calibri','Segoe UI','Helvetica Neue',Arial,sans-serif;color:#4D4D4D">Monthly report sent to leadership</span></p></div></div>
+</section>
+<section class="slide" id="slide-4" data-n="4" style="background:#FFFFFF">
+<div class="sh" style="left:57.60px;top:658.56px;width:162.24px;height:44.16px"><img src="assets/img/image2.png" alt="American Muscle Docks &amp; Fabrication logo" style="width:100%;height:100%;object-fit:fill;display:block"></div>
+<div class="sh" style="left:240.00px;top:662.40px;width:768.00px;height:36.48px"><div class="tx" style="padding:0.00px 0.00px 0.00px 0.00px;justify-content:center"><p class="pp" style="text-align:left"><span style="font-size:13.33px;font-family:'Carlito','Calibri','Segoe UI','Helvetica Neue',Arial,sans-serif;color:#7A7A7A">Built to Fix Fragmentation&nbsp; |&nbsp; Built Tough. Built to Last.®</span></p></div></div>
+<div class="sh" style="left:1166.40px;top:662.40px;width:57.60px;height:36.48px"><div class="tx" style="padding:0.00px 0.00px 0.00px 0.00px;justify-content:center"><p class="pp" style="text-align:right"><span style="font-size:13.33px;font-family:'Carlito','Calibri','Segoe UI','Helvetica Neue',Arial,sans-serif;color:#7A7A7A">4</span></p></div></div>
+<div class="sh" style="left:57.60px;top:40.32px;width:864.00px;height:36.48px;border-radius:5.00px"><div class="tx" style="padding:0.00px 0.00px 0.00px 0.00px;justify-content:center"><p class="pp" style="text-align:left"><span style="font-size:18.67px;font-family:'Carlito','Calibri','Segoe UI','Helvetica Neue',Arial,sans-serif;font-weight:700;color:#CD0006;letter-spacing:4.000px">MARKETING COMMAND&nbsp; /&nbsp; WHAT IT COVERS</span></p></div></div>
+<div class="sh" style="left:57.60px;top:78.72px;width:1161.60px;height:81.60px;border-radius:5.00px"><div class="tx" style="padding:0.00px 0.00px 0.00px 0.00px;justify-content:flex-start"><p class="pp" style="text-align:left"><span style="font-size:50.67px;font-family:'Impact','Haettenschweiler','Anton','Arial Narrow Bold',sans-serif;color:#000000">Everything Marketing Tracks, in One Place</span></p></div></div>
+<div class="sh" style="left:1166.40px;top:662.40px;width:57.60px;height:36.48px"><div class="tx" style="padding:0.00px 0.00px 0.00px 0.00px;justify-content:center"><p class="pp" style="text-align:right"><span style="font-size:13.33px;font-family:'Carlito','Calibri','Segoe UI','Helvetica Neue',Arial,sans-serif;color:#7A7A7A">4</span></p></div></div>
+<div class="sh" style="left:57.33px;top:176.00px;width:370.67px;height:136.00px;background:#F2F2F2;border-radius:5.00px"></div>
+<div class="sh" style="left:78.67px;top:217.33px;width:53.33px;height:53.33px;background:#CD0006;border-radius:4.27px"></div>
+<div class="sh" style="left:89.33px;top:228.00px;width:32.00px;height:32.00px"><img src="assets/img/image9.png" alt="" style="width:100%;height:100%;object-fit:fill;display:block"></div>
+<div class="sh" style="left:153.33px;top:196.00px;width:253.33px;height:34.67px;border-radius:4.51px"><div class="tx" style="padding:0.00px 0.00px 0.00px 0.00px;justify-content:flex-start"><p class="pp" style="text-align:left"><span style="font-size:26.67px;font-family:'Carlito','Calibri','Segoe UI','Helvetica Neue',Arial,sans-serif;font-weight:700;color:#000000">Revenue</span></p></div></div>
+<div class="sh" style="left:153.33px;top:233.33px;width:253.33px;height:61.33px;border-radius:9.13px"><div class="tx" style="padding:0.00px 0.00px 0.00px 0.00px;justify-content:flex-start"><p class="pp" style="text-align:left"><span style="font-size:24.00px;font-family:'Carlito','Calibri','Segoe UI','Helvetica Neue',Arial,sans-serif;color:#4D4D4D">QuickBooks and Shopify sales</span></p></div></div>
+<div class="sh" style="left:452.00px;top:176.00px;width:370.67px;height:136.00px;background:#F2F2F2;border-radius:5.00px"></div>
+<div class="sh" style="left:473.33px;top:217.33px;width:53.33px;height:53.33px;background:#CD0006;border-radius:4.27px"></div>
+<div class="sh" style="left:484.00px;top:228.00px;width:32.00px;height:32.00px"><img src="assets/img/image10.png" alt="" style="width:100%;height:100%;object-fit:fill;display:block"></div>
+<div class="sh" style="left:548.00px;top:196.00px;width:253.33px;height:34.67px;border-radius:4.51px"><div class="tx" style="padding:0.00px 0.00px 0.00px 0.00px;justify-content:flex-start"><p class="pp" style="text-align:left"><span style="font-size:26.67px;font-family:'Carlito','Calibri','Segoe UI','Helvetica Neue',Arial,sans-serif;font-weight:700;color:#000000">E-Commerce</span></p></div></div>
+<div class="sh" style="left:548.00px;top:233.33px;width:253.33px;height:61.33px;border-radius:9.13px"><div class="tx" style="padding:0.00px 0.00px 0.00px 0.00px;justify-content:flex-start"><p class="pp" style="text-align:left"><span style="font-size:24.00px;font-family:'Carlito','Calibri','Segoe UI','Helvetica Neue',Arial,sans-serif;color:#4D4D4D">Website traffic, sales, conversions</span></p></div></div>
+<div class="sh" style="left:846.67px;top:176.00px;width:370.67px;height:136.00px;background:#F2F2F2;border-radius:5.00px"></div>
+<div class="sh" style="left:868.00px;top:217.33px;width:53.33px;height:53.33px;background:#CD0006;border-radius:4.27px"></div>
+<div class="sh" style="left:878.67px;top:228.00px;width:32.00px;height:32.00px"><img src="assets/img/image11.png" alt="" style="width:100%;height:100%;object-fit:fill;display:block"></div>
+<div class="sh" style="left:942.67px;top:196.00px;width:253.33px;height:34.67px;border-radius:4.51px"><div class="tx" style="padding:0.00px 0.00px 0.00px 0.00px;justify-content:flex-start"><p class="pp" style="text-align:left"><span style="font-size:26.67px;font-family:'Carlito','Calibri','Segoe UI','Helvetica Neue',Arial,sans-serif;font-weight:700;color:#000000">Ads</span></p></div></div>
+<div class="sh" style="left:942.67px;top:233.33px;width:253.33px;height:61.33px;border-radius:9.13px"><div class="tx" style="padding:0.00px 0.00px 0.00px 0.00px;justify-content:flex-start"><p class="pp" style="text-align:left"><span style="font-size:24.00px;font-family:'Carlito','Calibri','Segoe UI','Helvetica Neue',Arial,sans-serif;color:#4D4D4D">Google Ads and Meta side by side</span></p></div></div>
+<div class="sh" style="left:57.33px;top:336.00px;width:370.67px;height:136.00px;background:#F2F2F2;border-radius:5.00px"></div>
+<div class="sh" style="left:78.67px;top:377.33px;width:53.33px;height:53.33px;background:#CD0006;border-radius:4.27px"></div>
+<div class="sh" style="left:89.33px;top:388.00px;width:32.00px;height:32.00px"><img src="assets/img/image12.png" alt="" style="width:100%;height:100%;object-fit:fill;display:block"></div>
+<div class="sh" style="left:153.33px;top:356.00px;width:253.33px;height:34.67px;border-radius:4.51px"><div class="tx" style="padding:0.00px 0.00px 0.00px 0.00px;justify-content:flex-start"><p class="pp" style="text-align:left"><span style="font-size:26.67px;font-family:'Carlito','Calibri','Segoe UI','Helvetica Neue',Arial,sans-serif;font-weight:700;color:#000000">SEO</span></p></div></div>
+<div class="sh" style="left:153.33px;top:393.33px;width:253.33px;height:61.33px;border-radius:9.13px"><div class="tx" style="padding:0.00px 0.00px 0.00px 0.00px;justify-content:flex-start"><p class="pp" style="text-align:left"><span style="font-size:24.00px;font-family:'Carlito','Calibri','Segoe UI','Helvetica Neue',Arial,sans-serif;color:#4D4D4D">Queries, rankings, and clicks</span></p></div></div>
+<div class="sh" style="left:452.00px;top:336.00px;width:370.67px;height:136.00px;background:#F2F2F2;border-radius:5.00px"></div>
+<div class="sh" style="left:473.33px;top:377.33px;width:53.33px;height:53.33px;background:#CD0006;border-radius:4.27px"></div>
+<div class="sh" style="left:484.00px;top:388.00px;width:32.00px;height:32.00px"><img src="assets/img/image13.png" alt="" style="width:100%;height:100%;object-fit:fill;display:block"></div>
+<div class="sh" style="left:548.00px;top:356.00px;width:253.33px;height:34.67px;border-radius:4.51px"><div class="tx" style="padding:0.00px 0.00px 0.00px 0.00px;justify-content:flex-start"><p class="pp" style="text-align:left"><span style="font-size:26.67px;font-family:'Carlito','Calibri','Segoe UI','Helvetica Neue',Arial,sans-serif;font-weight:700;color:#000000">Seasonal Trends</span></p></div></div>
+<div class="sh" style="left:548.00px;top:393.33px;width:253.33px;height:61.33px;border-radius:9.13px"><div class="tx" style="padding:0.00px 0.00px 0.00px 0.00px;justify-content:flex-start"><p class="pp" style="text-align:left"><span style="font-size:24.00px;font-family:'Carlito','Calibri','Segoe UI','Helvetica Neue',Arial,sans-serif;color:#4D4D4D">Week by week vs. prior year</span></p></div></div>
+<div class="sh" style="left:452.00px;top:496.00px;width:370.67px;height:136.00px;background:#F2F2F2;border-radius:5.00px"></div>
+<div class="sh" style="left:473.33px;top:537.33px;width:53.33px;height:53.33px;background:#CD0006;border-radius:4.27px"></div>
+<div class="sh" style="left:484.00px;top:548.00px;width:32.00px;height:32.00px"><img src="assets/img/image14.png" alt="" style="width:100%;height:100%;object-fit:fill;display:block"></div>
+<div class="sh" style="left:548.00px;top:516.00px;width:253.33px;height:34.67px;border-radius:4.51px"><div class="tx" style="padding:0.00px 0.00px 0.00px 0.00px;justify-content:flex-start"><p class="pp" style="text-align:left"><span style="font-size:26.67px;font-family:'Carlito','Calibri','Segoe UI','Helvetica Neue',Arial,sans-serif;font-weight:700;color:#000000">AI Social Posts</span></p></div></div>
+<div class="sh" style="left:548.00px;top:553.33px;width:253.33px;height:61.33px;border-radius:9.13px"><div class="tx" style="padding:0.00px 0.00px 0.00px 0.00px;justify-content:flex-start"><p class="pp" style="text-align:left"><span style="font-size:24.00px;font-family:'Carlito','Calibri','Segoe UI','Helvetica Neue',Arial,sans-serif;color:#4D4D4D">AI drafts posts, scheduled in-app</span></p></div></div>
+<div class="sh" style="left:846.67px;top:336.00px;width:370.67px;height:136.00px;background:#F2F2F2;border-radius:5.00px"></div>
+<div class="sh" style="left:868.00px;top:377.33px;width:53.33px;height:53.33px;background:#CD0006;border-radius:4.27px"></div>
+<div class="sh" style="left:878.67px;top:388.00px;width:32.00px;height:32.00px"><img src="assets/img/image15.png" alt="" style="width:100%;height:100%;object-fit:fill;display:block"></div>
+<div class="sh" style="left:942.67px;top:356.00px;width:253.33px;height:34.67px;border-radius:4.51px"><div class="tx" style="padding:0.00px 0.00px 0.00px 0.00px;justify-content:flex-start"><p class="pp" style="text-align:left"><span style="font-size:26.67px;font-family:'Carlito','Calibri','Segoe UI','Helvetica Neue',Arial,sans-serif;font-weight:700;color:#000000">Reviews</span></p></div></div>
+<div class="sh" style="left:942.67px;top:393.33px;width:253.33px;height:61.33px;border-radius:9.13px"><div class="tx" style="padding:0.00px 0.00px 0.00px 0.00px;justify-content:flex-start"><p class="pp" style="text-align:left"><span style="font-size:24.00px;font-family:'Carlito','Calibri','Segoe UI','Helvetica Neue',Arial,sans-serif;color:#4D4D4D">Judge.me customer reviews</span></p></div></div>
+<div class="sh" style="left:57.33px;top:496.00px;width:370.67px;height:136.00px;background:#F2F2F2;border-radius:5.00px"></div>
+<div class="sh" style="left:78.67px;top:537.33px;width:53.33px;height:53.33px;background:#CD0006;border-radius:4.27px"></div>
+<div class="sh" style="left:89.33px;top:548.00px;width:32.00px;height:32.00px"><img src="assets/img/image16.png" alt="" style="width:100%;height:100%;object-fit:fill;display:block"></div>
+<div class="sh" style="left:153.33px;top:516.00px;width:253.33px;height:34.67px;border-radius:4.51px"><div class="tx" style="padding:0.00px 0.00px 0.00px 0.00px;justify-content:flex-start"><p class="pp" style="text-align:left"><span style="font-size:26.67px;font-family:'Carlito','Calibri','Segoe UI','Helvetica Neue',Arial,sans-serif;font-weight:700;color:#000000">Asset Library</span></p></div></div>
+<div class="sh" style="left:153.33px;top:553.33px;width:253.33px;height:61.33px;border-radius:9.13px"><div class="tx" style="padding:0.00px 0.00px 0.00px 0.00px;justify-content:flex-start"><p class="pp" style="text-align:left"><span style="font-size:24.00px;font-family:'Carlito','Calibri','Segoe UI','Helvetica Neue',Arial,sans-serif;color:#4D4D4D">Shared brand files and images</span></p></div></div>
+<div class="sh" style="left:846.67px;top:496.00px;width:370.67px;height:136.00px;background:#F2F2F2;border-radius:5.00px"></div>
+<div class="sh" style="left:868.00px;top:537.33px;width:53.33px;height:53.33px;background:#CD0006;border-radius:4.27px"></div>
+<div class="sh" style="left:942.67px;top:516.00px;width:253.33px;height:34.67px;border-radius:4.51px"><div class="tx" style="padding:0.00px 0.00px 0.00px 0.00px;justify-content:flex-start"><p class="pp" style="text-align:left"><span style="font-size:26.67px;font-family:'Carlito','Calibri','Segoe UI','Helvetica Neue',Arial,sans-serif;font-weight:700;color:#000000">AI Assistant</span></p></div></div>
+<div class="sh" style="left:942.67px;top:553.33px;width:253.33px;height:61.33px;border-radius:9.13px"><div class="tx" style="padding:0.00px 0.00px 0.00px 0.00px;justify-content:flex-start"><p class="pp" style="text-align:left"><span style="font-size:24.00px;font-family:'Carlito','Calibri','Segoe UI','Helvetica Neue',Arial,sans-serif;color:#4D4D4D">Ask questions, get answers from live data</span></p></div></div>
+<div class="sh" style="left:878.67px;top:548.00px;width:32.00px;height:32.00px"><img src="assets/img/image17.svg" alt="Chat icon for AI Assistant" style="width:100%;height:100%;object-fit:fill;display:block"></div>
+</section>
+<section class="slide" id="slide-5" data-n="5" style="background:#FFFFFF">
+<div class="sh" style="left:57.60px;top:658.56px;width:162.24px;height:44.16px"><img src="assets/img/image2.png" alt="American Muscle Docks &amp; Fabrication logo" style="width:100%;height:100%;object-fit:fill;display:block"></div>
+<div class="sh" style="left:240.00px;top:662.40px;width:768.00px;height:36.48px"><div class="tx" style="padding:0.00px 0.00px 0.00px 0.00px;justify-content:center"><p class="pp" style="text-align:left"><span style="font-size:13.33px;font-family:'Carlito','Calibri','Segoe UI','Helvetica Neue',Arial,sans-serif;color:#7A7A7A">Built to Fix Fragmentation&nbsp; |&nbsp; Built Tough. Built to Last.®</span></p></div></div>
+<div class="sh" style="left:1166.40px;top:662.40px;width:57.60px;height:36.48px"><div class="tx" style="padding:0.00px 0.00px 0.00px 0.00px;justify-content:center"><p class="pp" style="text-align:right"><span style="font-size:13.33px;font-family:'Carlito','Calibri','Segoe UI','Helvetica Neue',Arial,sans-serif;color:#7A7A7A">5</span></p></div></div>
+<div class="sh" style="left:57.60px;top:40.32px;width:864.00px;height:36.48px;border-radius:5.00px"><div class="tx" style="padding:0.00px 0.00px 0.00px 0.00px;justify-content:center"><p class="pp" style="text-align:left"><span style="font-size:18.67px;font-family:'Carlito','Calibri','Segoe UI','Helvetica Neue',Arial,sans-serif;font-weight:700;color:#CD0006;letter-spacing:4.000px">MARKETING COMMAND&nbsp; /&nbsp; OVERVIEW</span></p></div></div>
+<div class="sh" style="left:57.60px;top:78.72px;width:1161.60px;height:81.60px;border-radius:5.00px"><div class="tx" style="padding:0.00px 0.00px 0.00px 0.00px;justify-content:flex-start"><p class="pp" style="text-align:left"><span style="font-size:50.67px;font-family:'Impact','Haettenschweiler','Anton','Arial Narrow Bold',sans-serif;color:#000000">One Home Screen Opens Every Marketing Channel</span></p></div></div>
+<div class="sh" style="left:1166.40px;top:662.40px;width:57.60px;height:36.48px"><div class="tx" style="padding:0.00px 0.00px 0.00px 0.00px;justify-content:center"><p class="pp" style="text-align:right"><span style="font-size:13.33px;font-family:'Carlito','Calibri','Segoe UI','Helvetica Neue',Arial,sans-serif;color:#7A7A7A">5</span></p></div></div>
+<div class="sh" style="left:853.33px;top:186.67px;width:366.67px;height:386.67px"><div class="tx" style="padding:0.00px 0.00px 0.00px 0.00px;justify-content:flex-start"><p class="pp" style="text-align:left"><span style="font-size:26.67px;font-family:'Carlito','Calibri','Segoe UI','Helvetica Neue',Arial,sans-serif;font-weight:700;color:#000000">Eight tools, one page</span></p><p class="pp" style="text-align:left;margin-top:4.00px"><span style="font-size:24.00px;font-family:'Carlito','Calibri','Segoe UI','Helvetica Neue',Arial,sans-serif;color:#4D4D4D">Finance, analytics, ads, SEO, seasonal trends, social, calendar and reviews each get a card</span></p><p class="pp" style="text-align:left;margin-top:21.33px"><span style="font-size:26.67px;font-family:'Carlito','Calibri','Segoe UI','Helvetica Neue',Arial,sans-serif;font-weight:700;color:#000000">Traffic by state</span></p><p class="pp" style="text-align:left;margin-top:4.00px"><span style="font-size:24.00px;font-family:'Carlito','Calibri','Segoe UI','Helvetica Neue',Arial,sans-serif;color:#4D4D4D">Shows which states visitors come from, ranked top ten</span></p><p class="pp" style="text-align:left;margin-top:21.33px"><span style="font-size:26.67px;font-family:'Carlito','Calibri','Segoe UI','Helvetica Neue',Arial,sans-serif;font-weight:700;color:#000000">One click to any tool</span></p><p class="pp" style="text-align:left;margin-top:4.00px"><span style="font-size:24.00px;font-family:'Carlito','Calibri','Segoe UI','Helvetica Neue',Arial,sans-serif;color:#4D4D4D">The sidebar opens every section from any page</span></p></div></div>
+<div class="sh" style="left:853.33px;top:589.01px;width:366.67px;height:21.33px"><div class="tx" style="padding:0.00px 0.00px 0.00px 0.00px;justify-content:flex-start"><p class="pp" style="text-align:left"><span style="font-size:16.00px;font-family:'Carlito','Calibri','Segoe UI','Helvetica Neue',Arial,sans-serif;font-style:italic;color:#4D4D4D">Screens show demo data</span></p></div></div>
+<div class="sh vidwrap" style="left:60.00px;top:186.67px;width:768.85px;height:418.46px"><video class="slidevid" src="assets/video/media1.mp4" poster="assets/img/image18.png" muted loop playsinline preload="none"></video></div>
+</section>
+<section class="slide" id="slide-6" data-n="6" style="background:#FFFFFF">
+<div class="sh" style="left:57.60px;top:658.56px;width:162.24px;height:44.16px"><img src="assets/img/image2.png" alt="American Muscle Docks &amp; Fabrication logo" style="width:100%;height:100%;object-fit:fill;display:block"></div>
+<div class="sh" style="left:240.00px;top:662.40px;width:768.00px;height:36.48px"><div class="tx" style="padding:0.00px 0.00px 0.00px 0.00px;justify-content:center"><p class="pp" style="text-align:left"><span style="font-size:13.33px;font-family:'Carlito','Calibri','Segoe UI','Helvetica Neue',Arial,sans-serif;color:#7A7A7A">Built to Fix Fragmentation&nbsp; |&nbsp; Built Tough. Built to Last.®</span></p></div></div>
+<div class="sh" style="left:1166.40px;top:662.40px;width:57.60px;height:36.48px"><div class="tx" style="padding:0.00px 0.00px 0.00px 0.00px;justify-content:center"><p class="pp" style="text-align:right"><span style="font-size:13.33px;font-family:'Carlito','Calibri','Segoe UI','Helvetica Neue',Arial,sans-serif;color:#7A7A7A">6</span></p></div></div>
+<div class="sh" style="left:57.60px;top:40.32px;width:864.00px;height:36.48px;border-radius:5.00px"><div class="tx" style="padding:0.00px 0.00px 0.00px 0.00px;justify-content:center"><p class="pp" style="text-align:left"><span style="font-size:18.67px;font-family:'Carlito','Calibri','Segoe UI','Helvetica Neue',Arial,sans-serif;font-weight:700;color:#CD0006;letter-spacing:4.000px">MARKETING COMMAND&nbsp; /&nbsp; SALES AND ADS</span></p></div></div>
+<div class="sh" style="left:57.60px;top:78.72px;width:1161.60px;height:81.60px;border-radius:5.00px"><div class="tx" style="padding:0.00px 0.00px 0.00px 0.00px;justify-content:flex-start"><p class="pp" style="text-align:left"><span style="font-size:50.67px;font-family:'Impact','Haettenschweiler','Anton','Arial Narrow Bold',sans-serif;color:#000000">Sales and Ad Results Read From the Same App</span></p></div></div>
+<div class="sh" style="left:1166.40px;top:662.40px;width:57.60px;height:36.48px"><div class="tx" style="padding:0.00px 0.00px 0.00px 0.00px;justify-content:center"><p class="pp" style="text-align:right"><span style="font-size:13.33px;font-family:'Carlito','Calibri','Segoe UI','Helvetica Neue',Arial,sans-serif;color:#7A7A7A">6</span></p></div></div>
+<div class="sh" style="left:57.33px;top:186.67px;width:566.67px;height:29.33px"><div class="tx" style="padding:0.00px 0.00px 0.00px 0.00px;justify-content:flex-start"><p class="pp" style="text-align:left"><span style="font-size:26.67px;font-family:'Carlito','Calibri','Segoe UI','Helvetica Neue',Arial,sans-serif;font-weight:700;color:#000000">Finance: Online and Offline revenue</span></p></div></div>
+<div class="sh" style="left:653.33px;top:186.67px;width:566.67px;height:29.33px"><div class="tx" style="padding:0.00px 0.00px 0.00px 0.00px;justify-content:flex-start"><p class="pp" style="text-align:left"><span style="font-size:26.67px;font-family:'Carlito','Calibri','Segoe UI','Helvetica Neue',Arial,sans-serif;font-weight:700;color:#000000">Ad Performance: Google and Meta campaigns</span></p></div></div>
+<div class="sh" style="left:57.33px;top:592.00px;width:566.67px;height:53.33px"><div class="tx" style="padding:0.00px 0.00px 0.00px 0.00px;justify-content:flex-start"><p class="pp" style="text-align:left"><span style="font-size:18.67px;font-family:'Carlito','Calibri','Segoe UI','Helvetica Neue',Arial,sans-serif;color:#4D4D4D">Custom-built AI algorithm sorts QuickBooks and Shopify sales into online vs. offline</span></p></div></div>
+<div class="sh" style="left:653.33px;top:592.00px;width:566.67px;height:53.33px"><div class="tx" style="padding:0.00px 0.00px 0.00px 0.00px;justify-content:flex-start"><p class="pp" style="text-align:left"><span style="font-size:18.67px;font-family:'Carlito','Calibri','Segoe UI','Helvetica Neue',Arial,sans-serif;color:#4D4D4D">Google Ads and Meta spend, ROAS and top campaigns</span></p></div></div>
+<div class="sh" style="left:653.33px;top:620.00px;width:566.67px;height:21.33px"><div class="tx" style="padding:0.00px 0.00px 0.00px 0.00px;justify-content:flex-start"><p class="pp" style="text-align:left"><span style="font-size:16.00px;font-family:'Carlito','Calibri','Segoe UI','Helvetica Neue',Arial,sans-serif;font-style:italic;color:#4D4D4D">Screens show demo data</span></p></div></div>
+<div class="sh vidwrap" style="left:57.33px;top:229.12px;width:566.67px;height:341.33px"><video class="slidevid" src="assets/video/media2.mp4" poster="assets/img/image19.png" muted loop playsinline preload="none"></video></div>
+<div class="sh vidwrap" style="left:652.53px;top:233.07px;width:566.67px;height:341.33px"><video class="slidevid" src="assets/video/media3.mp4" poster="assets/img/image20.png" muted loop playsinline preload="none"></video></div>
+</section>
+<section class="slide" id="slide-7" data-n="7" style="background:#FFFFFF">
+<div class="sh" style="left:57.60px;top:658.56px;width:162.24px;height:44.16px"><img src="assets/img/image2.png" alt="American Muscle Docks &amp; Fabrication logo" style="width:100%;height:100%;object-fit:fill;display:block"></div>
+<div class="sh" style="left:240.00px;top:662.40px;width:768.00px;height:36.48px"><div class="tx" style="padding:0.00px 0.00px 0.00px 0.00px;justify-content:center"><p class="pp" style="text-align:left"><span style="font-size:13.33px;font-family:'Carlito','Calibri','Segoe UI','Helvetica Neue',Arial,sans-serif;color:#7A7A7A">Built to Fix Fragmentation&nbsp; |&nbsp; Built Tough. Built to Last.®</span></p></div></div>
+<div class="sh" style="left:1166.40px;top:662.40px;width:57.60px;height:36.48px"><div class="tx" style="padding:0.00px 0.00px 0.00px 0.00px;justify-content:center"><p class="pp" style="text-align:right"><span style="font-size:13.33px;font-family:'Carlito','Calibri','Segoe UI','Helvetica Neue',Arial,sans-serif;color:#7A7A7A">7</span></p></div></div>
+<div class="sh" style="left:57.60px;top:40.32px;width:864.00px;height:36.48px;border-radius:5.00px"><div class="tx" style="padding:0.00px 0.00px 0.00px 0.00px;justify-content:center"><p class="pp" style="text-align:left"><span style="font-size:18.67px;font-family:'Carlito','Calibri','Segoe UI','Helvetica Neue',Arial,sans-serif;font-weight:700;color:#CD0006;letter-spacing:4.000px">MARKETING COMMAND&nbsp; /&nbsp; REPORTING</span></p></div></div>
+<div class="sh" style="left:57.60px;top:78.72px;width:1161.60px;height:81.60px;border-radius:5.00px"><div class="tx" style="padding:0.00px 0.00px 0.00px 0.00px;justify-content:flex-start"><p class="pp" style="text-align:left"><span style="font-size:50.67px;font-family:'Impact','Haettenschweiler','Anton','Arial Narrow Bold',sans-serif;color:#000000">Leadership Gets the Numbers Automatically</span></p></div></div>
+<div class="sh" style="left:1166.40px;top:662.40px;width:57.60px;height:36.48px"><div class="tx" style="padding:0.00px 0.00px 0.00px 0.00px;justify-content:center"><p class="pp" style="text-align:right"><span style="font-size:13.33px;font-family:'Carlito','Calibri','Segoe UI','Helvetica Neue',Arial,sans-serif;color:#7A7A7A">7</span></p></div></div>
+<div class="sh" style="left:57.60px;top:187.20px;width:264.00px;height:374.40px;background:#F2F2F2;border-radius:5.00px"></div>
+<div class="sh" style="left:86.40px;top:216.00px;width:96.00px;height:38.40px;border-radius:5.00px"><div class="tx" style="padding:0.00px 0.00px 0.00px 0.00px;justify-content:center"><p class="pp" style="text-align:left"><span style="font-size:26.67px;font-family:'Carlito','Calibri','Segoe UI','Helvetica Neue',Arial,sans-serif;font-weight:700;color:#CD0006">01</span></p></div></div>
+<div class="sh" style="left:86.40px;top:273.60px;width:81.60px;height:81.60px;background:#CD0006;border-radius:5.00px"></div>
+<div class="sh" style="left:105.98px;top:293.18px;width:42.43px;height:42.43px"><img src="assets/img/image21.png" alt="" style="width:100%;height:100%;object-fit:fill;display:block"></div>
+<div class="sh" style="left:86.40px;top:384.00px;width:206.40px;height:43.20px;border-radius:5.00px"><div class="tx" style="padding:0.00px 0.00px 0.00px 0.00px;justify-content:center"><p class="pp" style="text-align:left"><span style="font-size:34.67px;font-family:'Carlito','Calibri','Segoe UI','Helvetica Neue',Arial,sans-serif;font-weight:700;color:#000000">Pull</span></p></div></div>
+<div class="sh" style="left:86.40px;top:436.80px;width:206.40px;height:96.00px;border-radius:5.00px"><div class="tx" style="padding:0.00px 0.00px 0.00px 0.00px;justify-content:flex-start"><p class="pp" style="text-align:left"><span style="font-size:24.00px;font-family:'Carlito','Calibri','Segoe UI','Helvetica Neue',Arial,sans-serif;color:#4D4D4D">Live data from every connected tool</span></p></div></div>
+<div class="sh" style="left:331.20px;top:300.48px;width:17.28px;height:28.80px;background:#CD0006;clip-path:polygon(0 0, calc(100% - 14px) 0, 100% 50%, calc(100% - 14px) 100%, 0 100%, 14px 50%)"></div>
+<div class="sh" style="left:357.12px;top:187.20px;width:264.00px;height:374.40px;background:#F2F2F2;border-radius:5.00px"></div>
+<div class="sh" style="left:385.92px;top:216.00px;width:96.00px;height:38.40px;border-radius:5.00px"><div class="tx" style="padding:0.00px 0.00px 0.00px 0.00px;justify-content:center"><p class="pp" style="text-align:left"><span style="font-size:26.67px;font-family:'Carlito','Calibri','Segoe UI','Helvetica Neue',Arial,sans-serif;font-weight:700;color:#CD0006">02</span></p></div></div>
+<div class="sh" style="left:385.92px;top:273.60px;width:81.60px;height:81.60px;background:#CD0006;border-radius:5.00px"></div>
+<div class="sh" style="left:405.50px;top:293.18px;width:42.43px;height:42.43px"><img src="assets/img/image22.png" alt="" style="width:100%;height:100%;object-fit:fill;display:block"></div>
+<div class="sh" style="left:385.92px;top:384.00px;width:206.40px;height:43.20px;border-radius:5.00px"><div class="tx" style="padding:0.00px 0.00px 0.00px 0.00px;justify-content:center"><p class="pp" style="text-align:left"><span style="font-size:34.67px;font-family:'Carlito','Calibri','Segoe UI','Helvetica Neue',Arial,sans-serif;font-weight:700;color:#000000">Combine</span></p></div></div>
+<div class="sh" style="left:385.92px;top:436.80px;width:206.40px;height:96.00px;border-radius:5.00px"><div class="tx" style="padding:0.00px 0.00px 0.00px 0.00px;justify-content:flex-start"><p class="pp" style="text-align:left"><span style="font-size:24.00px;font-family:'Carlito','Calibri','Segoe UI','Helvetica Neue',Arial,sans-serif;color:#4D4D4D">One report across every channel</span></p></div></div>
+<div class="sh" style="left:630.72px;top:300.48px;width:17.28px;height:28.80px;background:#CD0006;clip-path:polygon(0 0, calc(100% - 14px) 0, 100% 50%, calc(100% - 14px) 100%, 0 100%, 14px 50%)"></div>
+<div class="sh" style="left:656.64px;top:187.20px;width:264.00px;height:374.40px;background:#F2F2F2;border-radius:5.00px"></div>
+<div class="sh" style="left:685.44px;top:216.00px;width:96.00px;height:38.40px;border-radius:5.00px"><div class="tx" style="padding:0.00px 0.00px 0.00px 0.00px;justify-content:center"><p class="pp" style="text-align:left"><span style="font-size:26.67px;font-family:'Carlito','Calibri','Segoe UI','Helvetica Neue',Arial,sans-serif;font-weight:700;color:#CD0006">03</span></p></div></div>
+<div class="sh" style="left:685.44px;top:273.60px;width:81.60px;height:81.60px;background:#CD0006;border-radius:5.00px"></div>
+<div class="sh" style="left:705.02px;top:293.18px;width:42.43px;height:42.43px"><img src="assets/img/image8.png" alt="" style="width:100%;height:100%;object-fit:fill;display:block"></div>
+<div class="sh" style="left:685.44px;top:384.00px;width:206.40px;height:43.20px;border-radius:5.00px"><div class="tx" style="padding:0.00px 0.00px 0.00px 0.00px;justify-content:center"><p class="pp" style="text-align:left"><span style="font-size:34.67px;font-family:'Carlito','Calibri','Segoe UI','Helvetica Neue',Arial,sans-serif;font-weight:700;color:#000000">Send</span></p></div></div>
+<div class="sh" style="left:685.44px;top:436.80px;width:216.42px;height:96.00px;border-radius:5.00px"><div class="tx" style="padding:0.00px 0.00px 0.00px 0.00px;justify-content:flex-start"><p class="pp" style="text-align:left"><span style="font-size:24.00px;font-family:'Carlito','Calibri','Segoe UI','Helvetica Neue',Arial,sans-serif;color:#4D4D4D">Delivered to leadership every month, automatically</span></p></div></div>
+<div class="sh" style="left:930.24px;top:300.48px;width:17.28px;height:28.80px;background:#CD0006;clip-path:polygon(0 0, calc(100% - 14px) 0, 100% 50%, calc(100% - 14px) 100%, 0 100%, 14px 50%)"></div>
+<div class="sh" style="left:956.16px;top:187.20px;width:264.00px;height:374.40px;background:#F2F2F2;border-radius:5.00px"></div>
+<div class="sh" style="left:984.96px;top:216.00px;width:96.00px;height:38.40px;border-radius:5.00px"><div class="tx" style="padding:0.00px 0.00px 0.00px 0.00px;justify-content:center"><p class="pp" style="text-align:left"><span style="font-size:26.67px;font-family:'Carlito','Calibri','Segoe UI','Helvetica Neue',Arial,sans-serif;font-weight:700;color:#CD0006">04</span></p></div></div>
+<div class="sh" style="left:984.96px;top:273.60px;width:81.60px;height:81.60px;background:#CD0006;border-radius:5.00px"></div>
+<div class="sh" style="left:1004.54px;top:293.18px;width:42.43px;height:42.43px"><img src="assets/img/image23.png" alt="" style="width:100%;height:100%;object-fit:fill;display:block"></div>
+<div class="sh" style="left:984.96px;top:384.00px;width:206.40px;height:43.20px;border-radius:5.00px"><div class="tx" style="padding:0.00px 0.00px 0.00px 0.00px;justify-content:center"><p class="pp" style="text-align:left"><span style="font-size:34.67px;font-family:'Carlito','Calibri','Segoe UI','Helvetica Neue',Arial,sans-serif;font-weight:700;color:#000000">Inform</span></p></div></div>
+<div class="sh" style="left:984.96px;top:436.80px;width:206.40px;height:96.00px;border-radius:5.00px"><div class="tx" style="padding:0.00px 0.00px 0.00px 0.00px;justify-content:flex-start"><p class="pp" style="text-align:left"><span style="font-size:24.00px;font-family:'Carlito','Calibri','Segoe UI','Helvetica Neue',Arial,sans-serif;color:#4D4D4D">Leadership stays current without logging in</span></p></div></div>
+</section>
+<section class="slide" id="slide-8" data-n="8" style="background:#FFFFFF">
+<div class="sh" style="left:57.60px;top:658.56px;width:162.24px;height:44.16px"><img src="assets/img/image2.png" alt="American Muscle Docks &amp; Fabrication logo" style="width:100%;height:100%;object-fit:fill;display:block"></div>
+<div class="sh" style="left:240.00px;top:662.40px;width:768.00px;height:36.48px"><div class="tx" style="padding:0.00px 0.00px 0.00px 0.00px;justify-content:center"><p class="pp" style="text-align:left"><span style="font-size:13.33px;font-family:'Carlito','Calibri','Segoe UI','Helvetica Neue',Arial,sans-serif;color:#7A7A7A">Built to Fix Fragmentation&nbsp; |&nbsp; Built Tough. Built to Last.®</span></p></div></div>
+<div class="sh" style="left:1166.40px;top:662.40px;width:57.60px;height:36.48px"><div class="tx" style="padding:0.00px 0.00px 0.00px 0.00px;justify-content:center"><p class="pp" style="text-align:right"><span style="font-size:13.33px;font-family:'Carlito','Calibri','Segoe UI','Helvetica Neue',Arial,sans-serif;color:#7A7A7A">8</span></p></div></div>
+<div class="sh" style="left:57.60px;top:40.32px;width:864.00px;height:36.48px;border-radius:5.00px"><div class="tx" style="padding:0.00px 0.00px 0.00px 0.00px;justify-content:center"><p class="pp" style="text-align:left"><span style="font-size:18.67px;font-family:'Carlito','Calibri','Segoe UI','Helvetica Neue',Arial,sans-serif;font-weight:700;color:#CD0006;letter-spacing:4.000px">MARKETING COMMAND&nbsp; /&nbsp; LIVE DEMO</span></p></div></div>
+<div class="sh" style="left:57.60px;top:78.72px;width:1161.60px;height:81.60px;border-radius:5.00px"><div class="tx" style="padding:0.00px 0.00px 0.00px 0.00px;justify-content:flex-start"><p class="pp" style="text-align:left"><span style="font-size:50.67px;font-family:'Impact','Haettenschweiler','Anton','Arial Narrow Bold',sans-serif;color:#000000">See It Live</span></p></div></div>
+<div class="sh" style="left:1166.40px;top:662.40px;width:57.60px;height:36.48px"><div class="tx" style="padding:0.00px 0.00px 0.00px 0.00px;justify-content:center"><p class="pp" style="text-align:right"><span style="font-size:13.33px;font-family:'Carlito','Calibri','Segoe UI','Helvetica Neue',Arial,sans-serif;color:#7A7A7A">8</span></p></div></div>
+<div class="sh" style="left:57.60px;top:201.60px;width:1161.60px;height:316.80px;background:#CD0006;border-radius:5.00px"></div>
+<div class="sh" style="left:105.60px;top:288.00px;width:144.00px;height:144.00px;background:#000000;border-radius:5.00px"></div>
+<div class="sh" style="left:140.16px;top:322.56px;width:74.88px;height:74.88px"><img src="assets/img/image24.png" alt="" style="width:100%;height:100%;object-fit:fill;display:block"></div>
+<div class="sh" style="left:288.00px;top:305.28px;width:892.80px;height:86.40px;border-radius:5.00px"><div class="tx" style="padding:0.00px 0.00px 0.00px 0.00px;justify-content:center"><p class="pp" style="text-align:left"><a class="lnk" href="https://amdmarketingcommand.netlify.app" target="_blank" rel="noopener" style="font-size:53.33px;font-family:'Carlito','Calibri','Segoe UI','Helvetica Neue',Arial,sans-serif;font-weight:700;text-decoration:underline;color:#FFFFFF">Launch Marketing Command</a></p></div></div>
+<div class="sh" style="left:288.00px;top:396.48px;width:892.80px;height:57.60px;border-radius:5.00px"><div class="tx" style="padding:0.00px 0.00px 0.00px 0.00px;justify-content:center"><p class="pp" style="text-align:left"><a class="lnk" href="https://amdmarketingcommand.netlify.app" target="_blank" rel="noopener" style="font-size:34.67px;font-family:'Carlito','Calibri','Segoe UI','Helvetica Neue',Arial,sans-serif;text-decoration:underline;color:#FFFFFF">amdmarketingcommand.netlify.app</a><span style="font-size:34.67px;font-family:'Carlito','Calibri','Segoe UI','Helvetica Neue',Arial,sans-serif;text-decoration:underline;color:#FFFFFF">/demo</span></p></div></div>
+<div class="sh" style="left:288.00px;top:266.88px;width:384.00px;height:33.60px;border-radius:5.00px"><div class="tx" style="padding:0.00px 0.00px 0.00px 0.00px;justify-content:center"><p class="pp" style="text-align:left"><span style="font-size:21.33px;font-family:'Carlito','Calibri','Segoe UI','Helvetica Neue',Arial,sans-serif;font-weight:700;color:#FFFFFF;letter-spacing:4.000px">LIVE DEMO</span></p></div></div>
+<div class="sh" style="left:57.60px;top:547.20px;width:1161.60px;height:38.40px;border-radius:5.00px"><div class="tx" style="padding:0.00px 0.00px 0.00px 0.00px;justify-content:center"><p class="pp" style="text-align:left"><span style="font-size:26.67px;font-family:'Carlito','Calibri','Segoe UI','Helvetica Neue',Arial,sans-serif;color:#4D4D4D">Internal, password-protected application running on demo data</span></p></div></div>
+</section>
+<section class="slide" id="slide-9" data-n="9" style="background:#1A1A1A">
+<div class="sh" style="left:57.60px;top:658.56px;width:162.24px;height:44.16px"><img src="assets/img/image2.png" alt="American Muscle Docks &amp; Fabrication logo" style="width:100%;height:100%;object-fit:fill;display:block"></div>
+<div class="sh" style="left:240.00px;top:662.40px;width:768.00px;height:36.48px"><div class="tx" style="padding:0.00px 0.00px 0.00px 0.00px;justify-content:center"><p class="pp" style="text-align:left"><span style="font-size:13.33px;font-family:'Carlito','Calibri','Segoe UI','Helvetica Neue',Arial,sans-serif;color:#B3B3B3">Built to Fix Fragmentation&nbsp; |&nbsp; Built Tough. Built to Last.®</span></p></div></div>
+<div class="sh" style="left:1166.40px;top:662.40px;width:57.60px;height:36.48px"><div class="tx" style="padding:0.00px 0.00px 0.00px 0.00px;justify-content:center"><p class="pp" style="text-align:right"><span style="font-size:13.33px;font-family:'Carlito','Calibri','Segoe UI','Helvetica Neue',Arial,sans-serif;color:#7A7A7A">9</span></p></div></div>
+<div class="sh" style="left:57.60px;top:40.32px;width:864.00px;height:36.48px;border-radius:5.00px"><div class="tx" style="padding:0.00px 0.00px 0.00px 0.00px;justify-content:center"><p class="pp" style="text-align:left"><span style="font-size:18.67px;font-family:'Carlito','Calibri','Segoe UI','Helvetica Neue',Arial,sans-serif;font-weight:700;color:#CD0006;letter-spacing:4.000px">AMD OPERATIONS&nbsp; /&nbsp; THE PROBLEM</span></p></div></div>
+<div class="sh" style="left:57.60px;top:78.72px;width:1161.60px;height:81.60px;border-radius:5.00px"><div class="tx" style="padding:0.00px 0.00px 0.00px 0.00px;justify-content:flex-start"><p class="pp" style="text-align:left"><span style="font-size:50.67px;font-family:'Impact','Haettenschweiler','Anton','Arial Narrow Bold',sans-serif;color:#FFFFFF">Paper, Phone Calls, and Word of Mouth</span></p></div></div>
+<div class="sh" style="left:1166.40px;top:662.40px;width:57.60px;height:36.48px"><div class="tx" style="padding:0.00px 0.00px 0.00px 0.00px;justify-content:center"><p class="pp" style="text-align:right"><span style="font-size:13.33px;font-family:'Carlito','Calibri','Segoe UI','Helvetica Neue',Arial,sans-serif;color:#7A7A7A">9</span></p></div></div>
+<div class="sh" style="left:57.60px;top:187.20px;width:371.20px;height:196.80px;background:#000000;border:1.33px solid #4D4D4D;box-sizing:border-box;border-radius:5.00px"></div>
+<div class="sh" style="left:86.40px;top:216.00px;width:72.00px;height:72.00px;background:#CD0006;border-radius:5.00px"></div>
+<div class="sh" style="left:103.68px;top:233.28px;width:37.44px;height:37.44px"><img src="assets/img/image25.png" alt="" style="width:100%;height:100%;object-fit:fill;display:block"></div>
+<div class="sh" style="left:86.40px;top:312.00px;width:313.60px;height:43.20px;border-radius:5.00px"><div class="tx" style="padding:0.00px 0.00px 0.00px 0.00px;justify-content:center"><p class="pp" style="text-align:left"><span style="font-size:32.00px;font-family:'Carlito','Calibri','Segoe UI','Helvetica Neue',Arial,sans-serif;font-weight:700;color:#FFFFFF">Paper Drawings</span></p></div></div>
+<div class="sh" style="left:452.80px;top:187.20px;width:371.20px;height:196.80px;background:#000000;border:1.33px solid #4D4D4D;box-sizing:border-box;border-radius:5.00px"></div>
+<div class="sh" style="left:481.60px;top:216.00px;width:72.00px;height:72.00px;background:#CD0006;border-radius:5.00px"></div>
+<div class="sh" style="left:498.88px;top:233.28px;width:37.44px;height:37.44px"><img src="assets/img/image26.png" alt="" style="width:100%;height:100%;object-fit:fill;display:block"></div>
+<div class="sh" style="left:481.60px;top:312.00px;width:313.60px;height:43.20px;border-radius:5.00px"><div class="tx" style="padding:0.00px 0.00px 0.00px 0.00px;justify-content:center"><p class="pp" style="text-align:left"><span style="font-size:32.00px;font-family:'Carlito','Calibri','Segoe UI','Helvetica Neue',Arial,sans-serif;font-weight:700;color:#FFFFFF">Phone Calls</span></p></div></div>
+<div class="sh" style="left:848.00px;top:187.20px;width:371.20px;height:196.80px;background:#000000;border:1.33px solid #4D4D4D;box-sizing:border-box;border-radius:5.00px"></div>
+<div class="sh" style="left:876.80px;top:216.00px;width:72.00px;height:72.00px;background:#CD0006;border-radius:5.00px"></div>
+<div class="sh" style="left:894.08px;top:233.28px;width:37.44px;height:37.44px"><img src="assets/img/image27.png" alt="" style="width:100%;height:100%;object-fit:fill;display:block"></div>
+<div class="sh" style="left:876.80px;top:312.00px;width:313.60px;height:43.20px;border-radius:5.00px"><div class="tx" style="padding:0.00px 0.00px 0.00px 0.00px;justify-content:center"><p class="pp" style="text-align:left"><span style="font-size:32.00px;font-family:'Carlito','Calibri','Segoe UI','Helvetica Neue',Arial,sans-serif;font-weight:700;color:#FFFFFF">Word of Mouth</span></p></div></div>
+<div class="sh" style="left:57.60px;top:412.80px;width:67.20px;height:67.20px;background:#CD0006;border-radius:5.00px"></div>
+<div class="sh" style="left:73.73px;top:428.93px;width:34.94px;height:34.94px"><img src="assets/img/image4.png" alt="" style="width:100%;height:100%;object-fit:fill;display:block"></div>
+<div class="sh" style="left:148.80px;top:412.80px;width:1070.40px;height:67.20px;border-radius:5.00px"><div class="tx" style="padding:0.00px 0.00px 0.00px 0.00px;justify-content:center"><p class="pp" style="text-align:left"><span style="font-size:29.33px;font-family:'Carlito','Calibri','Segoe UI','Helvetica Neue',Arial,sans-serif;font-weight:700;color:#FFFFFF">Shop floor operations ran on fragmented processes</span></p></div></div>
+<div class="sh" style="left:57.60px;top:523.68px;width:13.44px;height:13.44px;background:#CD0006"></div>
+<div class="sh" style="left:94.08px;top:499.20px;width:520.32px;height:62.40px;border-radius:5.00px"><div class="tx" style="padding:0.00px 0.00px 0.00px 0.00px;justify-content:center"><p class="pp" style="text-align:left"><span style="font-size:26.67px;font-family:'Carlito','Calibri','Segoe UI','Helvetica Neue',Arial,sans-serif;color:#FFFFFF">Build jobs worked from paper drawings</span></p></div></div>
+<div class="sh" style="left:57.60px;top:561.60px;width:556.80px;height:1.00px;background:#4D4D4D"></div>
+<div class="sh" style="left:57.60px;top:586.08px;width:13.44px;height:13.44px;background:#CD0006"></div>
+<div class="sh" style="left:94.08px;top:561.60px;width:520.32px;height:62.40px;border-radius:5.00px"><div class="tx" style="padding:0.00px 0.00px 0.00px 0.00px;justify-content:center"><p class="pp" style="text-align:left"><span style="font-size:26.67px;font-family:'Carlito','Calibri','Segoe UI','Helvetica Neue',Arial,sans-serif;color:#FFFFFF">Divisions coordinated by phone</span></p></div></div>
+<div class="sh" style="left:662.40px;top:523.68px;width:13.44px;height:13.44px;background:#CD0006"></div>
+<div class="sh" style="left:698.88px;top:499.20px;width:520.32px;height:62.40px;border-radius:5.00px"><div class="tx" style="padding:0.00px 0.00px 0.00px 0.00px;justify-content:center"><p class="pp" style="text-align:left"><span style="font-size:26.67px;font-family:'Carlito','Calibri','Segoe UI','Helvetica Neue',Arial,sans-serif;color:#FFFFFF">Updates passed along by word of mouth</span></p></div></div>
+<div class="sh" style="left:662.40px;top:561.60px;width:556.80px;height:1.00px;background:#4D4D4D"></div>
+<div class="sh" style="left:662.40px;top:586.08px;width:13.44px;height:13.44px;background:#CD0006"></div>
+<div class="sh" style="left:698.88px;top:561.60px;width:520.32px;height:62.40px;border-radius:5.00px"><div class="tx" style="padding:0.00px 0.00px 0.00px 0.00px;justify-content:center"><p class="pp" style="text-align:left"><span style="font-size:26.67px;font-family:'Carlito','Calibri','Segoe UI','Helvetica Neue',Arial,sans-serif;color:#FFFFFF">No shared record to look back on</span></p></div></div>
+</section>
+<section class="slide" id="slide-10" data-n="10" style="background:#FFFFFF">
+<div class="sh" style="left:57.60px;top:658.56px;width:162.24px;height:44.16px"><img src="assets/img/image2.png" alt="American Muscle Docks &amp; Fabrication logo" style="width:100%;height:100%;object-fit:fill;display:block"></div>
+<div class="sh" style="left:240.00px;top:662.40px;width:768.00px;height:36.48px"><div class="tx" style="padding:0.00px 0.00px 0.00px 0.00px;justify-content:center"><p class="pp" style="text-align:left"><span style="font-size:13.33px;font-family:'Carlito','Calibri','Segoe UI','Helvetica Neue',Arial,sans-serif;color:#7A7A7A">Built to Fix Fragmentation&nbsp; |&nbsp; Built Tough. Built to Last.®</span></p></div></div>
+<div class="sh" style="left:1166.40px;top:662.40px;width:57.60px;height:36.48px"><div class="tx" style="padding:0.00px 0.00px 0.00px 0.00px;justify-content:center"><p class="pp" style="text-align:right"><span style="font-size:13.33px;font-family:'Carlito','Calibri','Segoe UI','Helvetica Neue',Arial,sans-serif;color:#7A7A7A">10</span></p></div></div>
+<div class="sh" style="left:57.60px;top:40.32px;width:864.00px;height:36.48px;border-radius:5.00px"><div class="tx" style="padding:0.00px 0.00px 0.00px 0.00px;justify-content:center"><p class="pp" style="text-align:left"><span style="font-size:18.67px;font-family:'Carlito','Calibri','Segoe UI','Helvetica Neue',Arial,sans-serif;font-weight:700;color:#CD0006;letter-spacing:4.000px">AMD OPERATIONS&nbsp; /&nbsp; THE SOLUTION</span></p></div></div>
+<div class="sh" style="left:57.60px;top:78.72px;width:1161.60px;height:81.60px;border-radius:5.00px"><div class="tx" style="padding:0.00px 0.00px 0.00px 0.00px;justify-content:flex-start"><p class="pp" style="text-align:left"><span style="font-size:50.67px;font-family:'Impact','Haettenschweiler','Anton','Arial Narrow Bold',sans-serif;color:#000000">One Portal for Every Division</span></p></div></div>
+<div class="sh" style="left:1166.40px;top:662.40px;width:57.60px;height:36.48px"><div class="tx" style="padding:0.00px 0.00px 0.00px 0.00px;justify-content:center"><p class="pp" style="text-align:right"><span style="font-size:13.33px;font-family:'Carlito','Calibri','Segoe UI','Helvetica Neue',Arial,sans-serif;color:#7A7A7A">10</span></p></div></div>
+<div class="sh" style="left:57.60px;top:187.20px;width:220.80px;height:48.96px;background:#F2F2F2;border-radius:5.00px"></div>
+<div class="sh" style="left:76.80px;top:187.20px;width:192.00px;height:48.96px;border-radius:5.00px"><div class="tx" style="padding:0.00px 0.00px 0.00px 0.00px;justify-content:center"><p class="pp" style="text-align:left"><span style="font-size:21.33px;font-family:'Carlito','Calibri','Segoe UI','Helvetica Neue',Arial,sans-serif;font-weight:700;color:#1A1A1A">Build Jobs</span></p></div></div>
+<div class="sh" style="left:278.40px;top:211.68px;width:81.60px;height:187.20px;border-left:1.67px solid #B3B3B3"></div>
+<div class="sh" style="left:57.60px;top:249.60px;width:220.80px;height:48.96px;background:#F2F2F2;border-radius:5.00px"></div>
+<div class="sh" style="left:76.80px;top:249.60px;width:192.00px;height:48.96px;border-radius:5.00px"><div class="tx" style="padding:0.00px 0.00px 0.00px 0.00px;justify-content:center"><p class="pp" style="text-align:left"><span style="font-size:21.33px;font-family:'Carlito','Calibri','Segoe UI','Helvetica Neue',Arial,sans-serif;font-weight:700;color:#1A1A1A">Division Queues</span></p></div></div>
+<div class="sh" style="left:278.40px;top:274.08px;width:81.60px;height:124.80px;border-left:1.67px solid #B3B3B3"></div>
+<div class="sh" style="left:57.60px;top:312.00px;width:220.80px;height:48.96px;background:#F2F2F2;border-radius:5.00px"></div>
+<div class="sh" style="left:76.80px;top:312.00px;width:192.00px;height:48.96px;border-radius:5.00px"><div class="tx" style="padding:0.00px 0.00px 0.00px 0.00px;justify-content:center"><p class="pp" style="text-align:left"><span style="font-size:21.33px;font-family:'Carlito','Calibri','Segoe UI','Helvetica Neue',Arial,sans-serif;font-weight:700;color:#1A1A1A">Warehouse Messages</span></p></div></div>
+<div class="sh" style="left:278.40px;top:336.48px;width:81.60px;height:62.40px;border-left:1.67px solid #B3B3B3"></div>
+<div class="sh" style="left:57.60px;top:374.40px;width:220.80px;height:48.96px;background:#F2F2F2;border-radius:5.00px"></div>
+<div class="sh" style="left:76.80px;top:374.40px;width:192.00px;height:48.96px;border-radius:5.00px"><div class="tx" style="padding:0.00px 0.00px 0.00px 0.00px;justify-content:center"><p class="pp" style="text-align:left"><span style="font-size:21.33px;font-family:'Carlito','Calibri','Segoe UI','Helvetica Neue',Arial,sans-serif;font-weight:700;color:#1A1A1A">Work Orders</span></p></div></div>
+<div class="sh" style="left:278.40px;top:398.88px;width:81.60px;height:1.67px;background:#B3B3B3"></div>
+<div class="sh" style="left:57.60px;top:436.80px;width:220.80px;height:48.96px;background:#F2F2F2;border-radius:5.00px"></div>
+<div class="sh" style="left:76.80px;top:436.80px;width:192.00px;height:48.96px;border-radius:5.00px"><div class="tx" style="padding:0.00px 0.00px 0.00px 0.00px;justify-content:center"><p class="pp" style="text-align:left"><span style="font-size:21.33px;font-family:'Carlito','Calibri','Segoe UI','Helvetica Neue',Arial,sans-serif;font-weight:700;color:#1A1A1A">Purchasing</span></p></div></div>
+<div class="sh" style="left:278.40px;top:398.88px;width:81.60px;height:62.40px;border-left:1.67px solid #B3B3B3"></div>
+<div class="sh" style="left:57.60px;top:499.20px;width:220.80px;height:48.96px;background:#F2F2F2;border-radius:5.00px"></div>
+<div class="sh" style="left:76.80px;top:499.20px;width:192.00px;height:48.96px;border-radius:5.00px"><div class="tx" style="padding:0.00px 0.00px 0.00px 0.00px;justify-content:center"><p class="pp" style="text-align:left"><span style="font-size:21.33px;font-family:'Carlito','Calibri','Segoe UI','Helvetica Neue',Arial,sans-serif;font-weight:700;color:#1A1A1A">Inventory</span></p></div></div>
+<div class="sh" style="left:278.40px;top:398.88px;width:81.60px;height:124.80px;border-left:1.67px solid #B3B3B3"></div>
+<div class="sh" style="left:57.60px;top:561.60px;width:220.80px;height:48.96px;background:#F2F2F2;border-radius:5.00px"></div>
+<div class="sh" style="left:76.80px;top:561.60px;width:192.00px;height:48.96px;border-radius:5.00px"><div class="tx" style="padding:0.00px 0.00px 0.00px 0.00px;justify-content:center"><p class="pp" style="text-align:left"><span style="font-size:21.33px;font-family:'Carlito','Calibri','Segoe UI','Helvetica Neue',Arial,sans-serif;font-weight:700;color:#1A1A1A">Procedures</span></p></div></div>
+<div class="sh" style="left:278.40px;top:398.88px;width:81.60px;height:187.20px;border-left:1.67px solid #B3B3B3"></div>
+<div class="sh" style="left:360.00px;top:317.28px;width:244.80px;height:163.20px;background:#CD0006;border-radius:5.00px"></div>
+<div class="sh" style="left:360.00px;top:317.28px;width:244.80px;height:163.20px;border-radius:5.00px"><div class="tx" style="padding:0.00px 0.00px 0.00px 0.00px;justify-content:center"><p class="pp" style="text-align:center"><span style="font-size:24.00px;font-family:'Carlito','Calibri','Segoe UI','Helvetica Neue',Arial,sans-serif;font-weight:700;color:#FFFFFF;letter-spacing:4.000px">AMD</span></p><p class="pp" style="text-align:center"><span style="font-size:29.33px;font-family:'Carlito','Calibri','Segoe UI','Helvetica Neue',Arial,sans-serif;font-weight:700;color:#FFFFFF">OPERATIONS</span></p></div></div>
+<div class="sh" style="left:641.60px;top:187.20px;width:72.00px;height:72.00px;background:#CD0006;border-radius:5.00px"></div>
+<div class="sh" style="left:658.88px;top:204.48px;width:37.44px;height:37.44px"><img src="assets/img/image28.png" alt="" style="width:100%;height:100%;object-fit:fill;display:block"></div>
+<div class="sh" style="left:737.33px;top:187.20px;width:482.67px;height:36.48px;border-radius:5.00px"><div class="tx" style="padding:0.00px 0.00px 0.00px 0.00px;justify-content:center"><p class="pp" style="text-align:left"><span style="font-size:29.33px;font-family:'Carlito','Calibri','Segoe UI','Helvetica Neue',Arial,sans-serif;font-weight:700;color:#000000">Every Division Connected</span></p></div></div>
+<div class="sh" style="left:737.33px;top:223.68px;width:482.67px;height:35.52px;border-radius:5.00px"><div class="tx" style="padding:0.00px 0.00px 0.00px 0.00px;justify-content:center"><p class="pp" style="text-align:left"><span style="font-size:24.00px;font-family:'Carlito','Calibri','Segoe UI','Helvetica Neue',Arial,sans-serif;color:#4D4D4D">One portal across the company</span></p></div></div>
+<div class="sh" style="left:641.60px;top:304.32px;width:72.00px;height:72.00px;background:#CD0006;border-radius:5.00px"></div>
+<div class="sh" style="left:658.88px;top:321.60px;width:37.44px;height:37.44px"><img src="assets/img/image29.png" alt="" style="width:100%;height:100%;object-fit:fill;display:block"></div>
+<div class="sh" style="left:737.33px;top:304.32px;width:482.67px;height:36.48px;border-radius:5.00px"><div class="tx" style="padding:0.00px 0.00px 0.00px 0.00px;justify-content:center"><p class="pp" style="text-align:left"><span style="font-size:29.33px;font-family:'Carlito','Calibri','Segoe UI','Helvetica Neue',Arial,sans-serif;font-weight:700;color:#000000">Paperless Builds</span></p></div></div>
+<div class="sh" style="left:737.33px;top:340.80px;width:482.67px;height:35.52px;border-radius:5.00px"><div class="tx" style="padding:0.00px 0.00px 0.00px 0.00px;justify-content:center"><p class="pp" style="text-align:left"><span style="font-size:24.00px;font-family:'Carlito','Calibri','Segoe UI','Helvetica Neue',Arial,sans-serif;color:#4D4D4D">Build jobs on screen, not on paper</span></p></div></div>
+<div class="sh" style="left:641.60px;top:421.44px;width:72.00px;height:72.00px;background:#CD0006;border-radius:5.00px"></div>
+<div class="sh" style="left:658.88px;top:438.72px;width:37.44px;height:37.44px"><img src="assets/img/image30.png" alt="" style="width:100%;height:100%;object-fit:fill;display:block"></div>
+<div class="sh" style="left:737.33px;top:421.44px;width:482.67px;height:36.48px;border-radius:5.00px"><div class="tx" style="padding:0.00px 0.00px 0.00px 0.00px;justify-content:center"><p class="pp" style="text-align:left"><span style="font-size:29.33px;font-family:'Carlito','Calibri','Segoe UI','Helvetica Neue',Arial,sans-serif;font-weight:700;color:#000000">Clear Handoffs</span></p></div></div>
+<div class="sh" style="left:737.33px;top:457.92px;width:482.67px;height:35.52px;border-radius:5.00px"><div class="tx" style="padding:0.00px 0.00px 0.00px 0.00px;justify-content:center"><p class="pp" style="text-align:left"><span style="font-size:24.00px;font-family:'Carlito','Calibri','Segoe UI','Helvetica Neue',Arial,sans-serif;color:#4D4D4D">Requests and messages between warehouses</span></p></div></div>
+<div class="sh" style="left:641.60px;top:538.56px;width:72.00px;height:72.00px;background:#CD0006;border-radius:5.00px"></div>
+<div class="sh" style="left:658.88px;top:555.84px;width:37.44px;height:37.44px"><img src="assets/img/image31.png" alt="" style="width:100%;height:100%;object-fit:fill;display:block"></div>
+<div class="sh" style="left:737.33px;top:538.56px;width:482.67px;height:36.48px;border-radius:5.00px"><div class="tx" style="padding:0.00px 0.00px 0.00px 0.00px;justify-content:center"><p class="pp" style="text-align:left"><span style="font-size:29.33px;font-family:'Carlito','Calibri','Segoe UI','Helvetica Neue',Arial,sans-serif;font-weight:700;color:#000000">Saved Records</span></p></div></div>
+<div class="sh" style="left:737.33px;top:575.04px;width:482.67px;height:35.52px;border-radius:5.00px"><div class="tx" style="padding:0.00px 0.00px 0.00px 0.00px;justify-content:center"><p class="pp" style="text-align:left"><span style="font-size:24.00px;font-family:'Carlito','Calibri','Segoe UI','Helvetica Neue',Arial,sans-serif;color:#4D4D4D">Files kept for future reference</span></p></div></div>
+</section>
+<section class="slide" id="slide-11" data-n="11" style="background:#FFFFFF">
+<div class="sh" style="left:57.60px;top:658.56px;width:162.24px;height:44.16px"><img src="assets/img/image2.png" alt="American Muscle Docks &amp; Fabrication logo" style="width:100%;height:100%;object-fit:fill;display:block"></div>
+<div class="sh" style="left:240.00px;top:662.40px;width:768.00px;height:36.48px"><div class="tx" style="padding:0.00px 0.00px 0.00px 0.00px;justify-content:center"><p class="pp" style="text-align:left"><span style="font-size:13.33px;font-family:'Carlito','Calibri','Segoe UI','Helvetica Neue',Arial,sans-serif;color:#7A7A7A">Built to Fix Fragmentation&nbsp; |&nbsp; Built Tough. Built to Last.®</span></p></div></div>
+<div class="sh" style="left:1166.40px;top:662.40px;width:57.60px;height:36.48px"><div class="tx" style="padding:0.00px 0.00px 0.00px 0.00px;justify-content:center"><p class="pp" style="text-align:right"><span style="font-size:13.33px;font-family:'Carlito','Calibri','Segoe UI','Helvetica Neue',Arial,sans-serif;color:#7A7A7A">11</span></p></div></div>
+<div class="sh" style="left:57.60px;top:40.32px;width:864.00px;height:36.48px;border-radius:5.00px"><div class="tx" style="padding:0.00px 0.00px 0.00px 0.00px;justify-content:center"><p class="pp" style="text-align:left"><span style="font-size:18.67px;font-family:'Carlito','Calibri','Segoe UI','Helvetica Neue',Arial,sans-serif;font-weight:700;color:#CD0006;letter-spacing:4.000px">AMD OPERATIONS&nbsp; /&nbsp; DASHBOARD AND INVENTORY</span></p></div></div>
+<div class="sh" style="left:57.60px;top:78.72px;width:1161.60px;height:81.60px;border-radius:5.00px"><div class="tx" style="padding:0.00px 0.00px 0.00px 0.00px;justify-content:flex-start"><p class="pp" style="text-align:left"><span style="font-size:50.67px;font-family:'Impact','Haettenschweiler','Anton','Arial Narrow Bold',sans-serif;color:#000000">Work Orders, Requests and Stock on Live Screens</span></p></div></div>
+<div class="sh" style="left:1166.40px;top:662.40px;width:57.60px;height:36.48px"><div class="tx" style="padding:0.00px 0.00px 0.00px 0.00px;justify-content:center"><p class="pp" style="text-align:right"><span style="font-size:13.33px;font-family:'Carlito','Calibri','Segoe UI','Helvetica Neue',Arial,sans-serif;color:#7A7A7A">11</span></p></div></div>
+<div class="sh" style="left:57.33px;top:186.67px;width:566.67px;height:29.33px"><div class="tx" style="padding:0.00px 0.00px 0.00px 0.00px;justify-content:flex-start"><p class="pp" style="text-align:left"><span style="font-size:26.67px;font-family:'Carlito','Calibri','Segoe UI','Helvetica Neue',Arial,sans-serif;font-weight:700;color:#000000">Dashboard: work orders, requests and jobs</span></p></div></div>
+<div class="sh" style="left:653.33px;top:186.67px;width:566.67px;height:29.33px"><div class="tx" style="padding:0.00px 0.00px 0.00px 0.00px;justify-content:flex-start"><p class="pp" style="text-align:left"><span style="font-size:26.67px;font-family:'Carlito','Calibri','Segoe UI','Helvetica Neue',Arial,sans-serif;font-weight:700;color:#000000">Inventory: stock levels by material</span></p></div></div>
+<div class="sh" style="left:57.33px;top:592.00px;width:566.67px;height:53.33px"><div class="tx" style="padding:0.00px 0.00px 0.00px 0.00px;justify-content:flex-start"><p class="pp" style="text-align:left"><span style="font-size:24.00px;font-family:'Carlito','Calibri','Segoe UI','Helvetica Neue',Arial,sans-serif;color:#4D4D4D">Open work and division messages on one screen</span></p></div></div>
+<div class="sh" style="left:653.33px;top:592.00px;width:566.67px;height:53.33px"><div class="tx" style="padding:0.00px 0.00px 0.00px 0.00px;justify-content:flex-start"><p class="pp" style="text-align:left"><span style="font-size:24.00px;font-family:'Carlito','Calibri','Segoe UI','Helvetica Neue',Arial,sans-serif;color:#4D4D4D">Low and critical stock flagged against minimums</span></p></div></div>
+<div class="sh" style="left:653.33px;top:624.00px;width:566.67px;height:21.33px"><div class="tx" style="padding:0.00px 0.00px 0.00px 0.00px;justify-content:flex-start"><p class="pp" style="text-align:left"><span style="font-size:16.00px;font-family:'Carlito','Calibri','Segoe UI','Helvetica Neue',Arial,sans-serif;font-style:italic;color:#4D4D4D">Screens show demo data</span></p></div></div>
+<div class="sh vidwrap" style="left:57.33px;top:224.00px;width:574.30px;height:354.88px"><video class="slidevid" src="assets/video/media4.mp4" poster="assets/img/image32.png" muted loop playsinline preload="none"></video></div>
+<div class="sh vidwrap" style="left:653.33px;top:224.00px;width:574.30px;height:354.88px"><video class="slidevid" src="assets/video/media5.mp4" poster="assets/img/image33.png" muted loop playsinline preload="none"></video></div>
+</section>
+<section class="slide" id="slide-12" data-n="12" style="background:#FFFFFF">
+<div class="sh" style="left:57.60px;top:658.56px;width:162.24px;height:44.16px"><img src="assets/img/image2.png" alt="American Muscle Docks &amp; Fabrication logo" style="width:100%;height:100%;object-fit:fill;display:block"></div>
+<div class="sh" style="left:240.00px;top:662.40px;width:768.00px;height:36.48px"><div class="tx" style="padding:0.00px 0.00px 0.00px 0.00px;justify-content:center"><p class="pp" style="text-align:left"><span style="font-size:13.33px;font-family:'Carlito','Calibri','Segoe UI','Helvetica Neue',Arial,sans-serif;color:#7A7A7A">Built to Fix Fragmentation&nbsp; |&nbsp; Built Tough. Built to Last.®</span></p></div></div>
+<div class="sh" style="left:1166.40px;top:662.40px;width:57.60px;height:36.48px"><div class="tx" style="padding:0.00px 0.00px 0.00px 0.00px;justify-content:center"><p class="pp" style="text-align:right"><span style="font-size:13.33px;font-family:'Carlito','Calibri','Segoe UI','Helvetica Neue',Arial,sans-serif;color:#7A7A7A">12</span></p></div></div>
+<div class="sh" style="left:57.60px;top:40.32px;width:864.00px;height:36.48px;border-radius:5.00px"><div class="tx" style="padding:0.00px 0.00px 0.00px 0.00px;justify-content:center"><p class="pp" style="text-align:left"><span style="font-size:18.67px;font-family:'Carlito','Calibri','Segoe UI','Helvetica Neue',Arial,sans-serif;font-weight:700;color:#CD0006;letter-spacing:4.000px">AMD OPERATIONS&nbsp; /&nbsp; DIVISION QUEUES</span></p></div></div>
+<div class="sh" style="left:57.60px;top:78.72px;width:1161.60px;height:81.60px;border-radius:5.00px"><div class="tx" style="padding:0.00px 0.00px 0.00px 0.00px;justify-content:flex-start"><p class="pp" style="text-align:left"><span style="font-size:50.67px;font-family:'Impact','Haettenschweiler','Anton','Arial Narrow Bold',sans-serif;color:#000000">Every Division Has Its Own Queue</span></p></div></div>
+<div class="sh" style="left:1166.40px;top:662.40px;width:57.60px;height:36.48px"><div class="tx" style="padding:0.00px 0.00px 0.00px 0.00px;justify-content:center"><p class="pp" style="text-align:right"><span style="font-size:13.33px;font-family:'Carlito','Calibri','Segoe UI','Helvetica Neue',Arial,sans-serif;color:#7A7A7A">12</span></p></div></div>
+<div class="sh" style="left:700.80px;top:192.00px;width:72.00px;height:72.00px;background:#CD0006;border-radius:5.00px"></div>
+<div class="sh" style="left:718.08px;top:209.28px;width:37.44px;height:37.44px"><img src="assets/img/image34.png" alt="" style="width:100%;height:100%;object-fit:fill;display:block"></div>
+<div class="sh" style="left:796.80px;top:192.00px;width:422.40px;height:72.00px;border-radius:5.00px"><div class="tx" style="padding:0.00px 0.00px 0.00px 0.00px;justify-content:center"><p class="pp" style="text-align:left"><span style="font-size:29.33px;font-family:'Carlito','Calibri','Segoe UI','Helvetica Neue',Arial,sans-serif;font-weight:700;color:#1A1A1A">Work routed to the right team</span></p></div></div>
+<div class="sh" style="left:700.80px;top:323.52px;width:13.44px;height:13.44px;background:#CD0006"></div>
+<div class="sh" style="left:737.28px;top:292.80px;width:481.92px;height:74.88px;border-radius:5.00px"><div class="tx" style="padding:0.00px 0.00px 0.00px 0.00px;justify-content:center"><p class="pp" style="text-align:left"><span style="font-size:26.67px;font-family:'Carlito','Calibri','Segoe UI','Helvetica Neue',Arial,sans-serif;color:#000000">Each division works from its own queue</span></p></div></div>
+<div class="sh" style="left:700.80px;top:367.68px;width:518.40px;height:1.00px;background:#B3B3B3"></div>
+<div class="sh" style="left:700.80px;top:398.40px;width:13.44px;height:13.44px;background:#CD0006"></div>
+<div class="sh" style="left:737.28px;top:367.68px;width:481.92px;height:74.88px;border-radius:5.00px"><div class="tx" style="padding:0.00px 0.00px 0.00px 0.00px;justify-content:center"><p class="pp" style="text-align:left"><span style="font-size:26.67px;font-family:'Carlito','Calibri','Segoe UI','Helvetica Neue',Arial,sans-serif;color:#000000">Warehouses send requests to each other</span></p></div></div>
+<div class="sh" style="left:700.80px;top:442.56px;width:518.40px;height:1.00px;background:#B3B3B3"></div>
+<div class="sh" style="left:700.80px;top:473.28px;width:13.44px;height:13.44px;background:#CD0006"></div>
+<div class="sh" style="left:737.28px;top:442.56px;width:481.92px;height:74.88px;border-radius:5.00px"><div class="tx" style="padding:0.00px 0.00px 0.00px 0.00px;justify-content:center"><p class="pp" style="text-align:left"><span style="font-size:26.67px;font-family:'Carlito','Calibri','Segoe UI','Helvetica Neue',Arial,sans-serif;color:#000000">Daily messages keep warehouses in sync</span></p></div></div>
+<div class="sh" style="left:57.33px;top:570.67px;width:594.67px;height:21.33px"><div class="tx" style="padding:0.00px 0.00px 0.00px 0.00px;justify-content:flex-start"><p class="pp" style="text-align:left"><span style="font-size:16.00px;font-family:'Carlito','Calibri','Segoe UI','Helvetica Neue',Arial,sans-serif;font-style:italic;color:#4D4D4D">Screen shows demo data</span></p></div></div>
+<div class="sh vidwrap" style="left:57.33px;top:160.32px;width:627.70px;height:389.72px"><video class="slidevid" src="assets/video/media6.mp4" poster="assets/img/image35.png" muted loop playsinline preload="none"></video></div>
+</section>
+<section class="slide" id="slide-13" data-n="13" style="background:#FFFFFF">
+<div class="sh" style="left:57.60px;top:658.56px;width:162.24px;height:44.16px"><img src="assets/img/image2.png" alt="American Muscle Docks &amp; Fabrication logo" style="width:100%;height:100%;object-fit:fill;display:block"></div>
+<div class="sh" style="left:240.00px;top:662.40px;width:768.00px;height:36.48px"><div class="tx" style="padding:0.00px 0.00px 0.00px 0.00px;justify-content:center"><p class="pp" style="text-align:left"><span style="font-size:13.33px;font-family:'Carlito','Calibri','Segoe UI','Helvetica Neue',Arial,sans-serif;color:#7A7A7A">Built to Fix Fragmentation&nbsp; |&nbsp; Built Tough. Built to Last.®</span></p></div></div>
+<div class="sh" style="left:1166.40px;top:662.40px;width:57.60px;height:36.48px"><div class="tx" style="padding:0.00px 0.00px 0.00px 0.00px;justify-content:center"><p class="pp" style="text-align:right"><span style="font-size:13.33px;font-family:'Carlito','Calibri','Segoe UI','Helvetica Neue',Arial,sans-serif;color:#7A7A7A">13</span></p></div></div>
+<div class="sh" style="left:57.60px;top:40.32px;width:864.00px;height:36.48px;border-radius:5.00px"><div class="tx" style="padding:0.00px 0.00px 0.00px 0.00px;justify-content:center"><p class="pp" style="text-align:left"><span style="font-size:18.67px;font-family:'Carlito','Calibri','Segoe UI','Helvetica Neue',Arial,sans-serif;font-weight:700;color:#CD0006;letter-spacing:4.000px">AMD OPERATIONS&nbsp; /&nbsp; BUILD JOBS</span></p></div></div>
+<div class="sh" style="left:57.60px;top:78.72px;width:1161.60px;height:81.60px;border-radius:5.00px"><div class="tx" style="padding:0.00px 0.00px 0.00px 0.00px;justify-content:flex-start"><p class="pp" style="text-align:left"><span style="font-size:50.67px;font-family:'Impact','Haettenschweiler','Anton','Arial Narrow Bold',sans-serif;color:#000000">Build Jobs on the Big Screen</span></p></div></div>
+<div class="sh" style="left:1166.40px;top:662.40px;width:57.60px;height:36.48px"><div class="tx" style="padding:0.00px 0.00px 0.00px 0.00px;justify-content:center"><p class="pp" style="text-align:right"><span style="font-size:13.33px;font-family:'Carlito','Calibri','Segoe UI','Helvetica Neue',Arial,sans-serif;color:#7A7A7A">13</span></p></div></div>
+<div class="sh" style="left:57.60px;top:192.00px;width:72.00px;height:72.00px;background:#CD0006;border-radius:5.00px"></div>
+<div class="sh" style="left:74.88px;top:209.28px;width:37.44px;height:37.44px"><img src="assets/img/image29.png" alt="" style="width:100%;height:100%;object-fit:fill;display:block"></div>
+<div class="sh" style="left:153.60px;top:192.00px;width:422.40px;height:72.00px;border-radius:5.00px"><div class="tx" style="padding:0.00px 0.00px 0.00px 0.00px;justify-content:center"><p class="pp" style="text-align:left"><span style="font-size:29.33px;font-family:'Carlito','Calibri','Segoe UI','Helvetica Neue',Arial,sans-serif;font-weight:700;color:#1A1A1A">Dock builders work from the screen, not paper</span></p></div></div>
+<div class="sh" style="left:57.60px;top:323.52px;width:13.44px;height:13.44px;background:#CD0006"></div>
+<div class="sh" style="left:94.08px;top:292.80px;width:481.92px;height:74.88px;border-radius:5.00px"><div class="tx" style="padding:0.00px 0.00px 0.00px 0.00px;justify-content:center"><p class="pp" style="text-align:left"><span style="font-size:26.67px;font-family:'Carlito','Calibri','Segoe UI','Helvetica Neue',Arial,sans-serif;color:#000000">Build jobs displayed on a large shop TV</span></p></div></div>
+<div class="sh" style="left:57.60px;top:367.68px;width:518.40px;height:1.00px;background:#B3B3B3"></div>
+<div class="sh" style="left:57.60px;top:398.40px;width:13.44px;height:13.44px;background:#CD0006"></div>
+<div class="sh" style="left:94.08px;top:367.68px;width:481.92px;height:74.88px;border-radius:5.00px"><div class="tx" style="padding:0.00px 0.00px 0.00px 0.00px;justify-content:center"><p class="pp" style="text-align:left"><span style="font-size:26.67px;font-family:'Carlito','Calibri','Segoe UI','Helvetica Neue',Arial,sans-serif;color:#000000">Mark up drawings directly on screen</span></p></div></div>
+<div class="sh" style="left:57.60px;top:442.56px;width:518.40px;height:1.00px;background:#B3B3B3"></div>
+<div class="sh" style="left:57.60px;top:473.28px;width:13.44px;height:13.44px;background:#CD0006"></div>
+<div class="sh" style="left:94.08px;top:442.56px;width:481.92px;height:74.88px;border-radius:5.00px"><div class="tx" style="padding:0.00px 0.00px 0.00px 0.00px;justify-content:center"><p class="pp" style="text-align:left"><span style="font-size:26.67px;font-family:'Carlito','Calibri','Segoe UI','Helvetica Neue',Arial,sans-serif;color:#000000">Save marked-up files for future reference</span></p></div></div>
+<div class="sh" style="left:617.61px;top:557.76px;width:594.67px;height:21.33px"><div class="tx" style="padding:0.00px 0.00px 0.00px 0.00px;justify-content:flex-start"><p class="pp" style="text-align:left"><span style="font-size:16.00px;font-family:'Carlito','Calibri','Segoe UI','Helvetica Neue',Arial,sans-serif;font-style:italic;color:#4D4D4D">Screen shows demo data</span></p></div></div>
+<div class="sh vidwrap" style="left:617.61px;top:162.24px;width:606.39px;height:376.49px"><video class="slidevid" src="assets/video/media7.mp4" poster="assets/img/image36.png" muted loop playsinline preload="none"></video></div>
+</section>
+<section class="slide" id="slide-14" data-n="14" style="background:#FFFFFF">
+<div class="sh" style="left:57.60px;top:658.56px;width:162.24px;height:44.16px"><img src="assets/img/image2.png" alt="American Muscle Docks &amp; Fabrication logo" style="width:100%;height:100%;object-fit:fill;display:block"></div>
+<div class="sh" style="left:240.00px;top:662.40px;width:768.00px;height:36.48px"><div class="tx" style="padding:0.00px 0.00px 0.00px 0.00px;justify-content:center"><p class="pp" style="text-align:left"><span style="font-size:13.33px;font-family:'Carlito','Calibri','Segoe UI','Helvetica Neue',Arial,sans-serif;color:#7A7A7A">Built to Fix Fragmentation&nbsp; |&nbsp; Built Tough. Built to Last.®</span></p></div></div>
+<div class="sh" style="left:1166.40px;top:662.40px;width:57.60px;height:36.48px"><div class="tx" style="padding:0.00px 0.00px 0.00px 0.00px;justify-content:center"><p class="pp" style="text-align:right"><span style="font-size:13.33px;font-family:'Carlito','Calibri','Segoe UI','Helvetica Neue',Arial,sans-serif;color:#7A7A7A">14</span></p></div></div>
+<div class="sh" style="left:57.60px;top:40.32px;width:864.00px;height:36.48px;border-radius:5.00px"><div class="tx" style="padding:0.00px 0.00px 0.00px 0.00px;justify-content:center"><p class="pp" style="text-align:left"><span style="font-size:18.67px;font-family:'Carlito','Calibri','Segoe UI','Helvetica Neue',Arial,sans-serif;font-weight:700;color:#CD0006;letter-spacing:4.000px">AMD OPERATIONS&nbsp; /&nbsp; CORE OPERATIONS</span></p></div></div>
+<div class="sh" style="left:57.60px;top:78.72px;width:1161.60px;height:81.60px;border-radius:5.00px"><div class="tx" style="padding:0.00px 0.00px 0.00px 0.00px;justify-content:flex-start"><p class="pp" style="text-align:left"><span style="font-size:50.67px;font-family:'Impact','Haettenschweiler','Anton','Arial Narrow Bold',sans-serif;color:#000000">Day-to-Day Operations in the Same Portal</span></p></div></div>
+<div class="sh" style="left:1166.40px;top:662.40px;width:57.60px;height:36.48px"><div class="tx" style="padding:0.00px 0.00px 0.00px 0.00px;justify-content:center"><p class="pp" style="text-align:right"><span style="font-size:13.33px;font-family:'Carlito','Calibri','Segoe UI','Helvetica Neue',Arial,sans-serif;color:#7A7A7A">14</span></p></div></div>
+<div class="sh" style="left:57.33px;top:186.67px;width:513.33px;height:84.00px;background:#F2F2F2;border-radius:1.94px"></div>
+<div class="sh" style="left:76.00px;top:202.00px;width:53.33px;height:53.33px;background:#CD0006;border-radius:4.27px"></div>
+<div class="sh" style="left:86.67px;top:212.67px;width:32.00px;height:32.00px"><img src="assets/img/image37.png" alt="" style="width:100%;height:100%;object-fit:fill;display:block"></div>
+<div class="sh" style="left:148.00px;top:197.33px;width:406.67px;height:33.33px;border-radius:4.34px"><div class="tx" style="padding:0.00px 0.00px 0.00px 0.00px;justify-content:flex-start"><p class="pp" style="text-align:left"><span style="font-size:26.67px;font-family:'Carlito','Calibri','Segoe UI','Helvetica Neue',Arial,sans-serif;font-weight:700;color:#000000">Work Orders</span></p></div></div>
+<div class="sh" style="left:148.00px;top:232.00px;width:406.67px;height:30.67px;border-radius:4.56px"><div class="tx" style="padding:0.00px 0.00px 0.00px 0.00px;justify-content:flex-start"><p class="pp" style="text-align:left"><span style="font-size:24.00px;font-family:'Carlito','Calibri','Segoe UI','Helvetica Neue',Arial,sans-serif;color:#4D4D4D">Issued and tracked in the portal</span></p></div></div>
+<div class="sh" style="left:57.33px;top:288.00px;width:513.33px;height:84.00px;background:#F2F2F2;border-radius:1.94px"></div>
+<div class="sh" style="left:76.00px;top:303.33px;width:53.33px;height:53.33px;background:#CD0006;border-radius:4.27px"></div>
+<div class="sh" style="left:86.67px;top:314.00px;width:32.00px;height:32.00px"><img src="assets/img/image38.png" alt="" style="width:100%;height:100%;object-fit:fill;display:block"></div>
+<div class="sh" style="left:148.00px;top:298.67px;width:406.67px;height:33.33px;border-radius:4.34px"><div class="tx" style="padding:0.00px 0.00px 0.00px 0.00px;justify-content:flex-start"><p class="pp" style="text-align:left"><span style="font-size:26.67px;font-family:'Carlito','Calibri','Segoe UI','Helvetica Neue',Arial,sans-serif;font-weight:700;color:#000000">Purchasing</span></p></div></div>
+<div class="sh" style="left:148.00px;top:333.33px;width:406.67px;height:30.67px;border-radius:4.56px"><div class="tx" style="padding:0.00px 0.00px 0.00px 0.00px;justify-content:flex-start"><p class="pp" style="text-align:left"><span style="font-size:24.00px;font-family:'Carlito','Calibri','Segoe UI','Helvetica Neue',Arial,sans-serif;color:#4D4D4D">Handled in the same system</span></p></div></div>
+<div class="sh" style="left:57.33px;top:389.33px;width:513.33px;height:84.00px;background:#F2F2F2;border-radius:1.94px"></div>
+<div class="sh" style="left:76.00px;top:404.67px;width:53.33px;height:53.33px;background:#CD0006;border-radius:4.27px"></div>
+<div class="sh" style="left:86.67px;top:415.33px;width:32.00px;height:32.00px"><img src="assets/img/image39.png" alt="" style="width:100%;height:100%;object-fit:fill;display:block"></div>
+<div class="sh" style="left:148.00px;top:400.00px;width:406.67px;height:33.33px;border-radius:4.34px"><div class="tx" style="padding:0.00px 0.00px 0.00px 0.00px;justify-content:flex-start"><p class="pp" style="text-align:left"><span style="font-size:26.67px;font-family:'Carlito','Calibri','Segoe UI','Helvetica Neue',Arial,sans-serif;font-weight:700;color:#000000">Inventory</span></p></div></div>
+<div class="sh" style="left:148.00px;top:434.67px;width:406.67px;height:30.67px;border-radius:4.56px"><div class="tx" style="padding:0.00px 0.00px 0.00px 0.00px;justify-content:flex-start"><p class="pp" style="text-align:left"><span style="font-size:24.00px;font-family:'Carlito','Calibri','Segoe UI','Helvetica Neue',Arial,sans-serif;color:#4D4D4D">Tracked alongside the work</span></p></div></div>
+<div class="sh" style="left:57.33px;top:490.67px;width:513.33px;height:84.00px;background:#F2F2F2;border-radius:1.94px"></div>
+<div class="sh" style="left:76.00px;top:506.00px;width:53.33px;height:53.33px;background:#CD0006;border-radius:4.27px"></div>
+<div class="sh" style="left:86.67px;top:516.67px;width:32.00px;height:32.00px"><img src="assets/img/image40.png" alt="" style="width:100%;height:100%;object-fit:fill;display:block"></div>
+<div class="sh" style="left:148.00px;top:501.33px;width:406.67px;height:33.33px;border-radius:4.34px"><div class="tx" style="padding:0.00px 0.00px 0.00px 0.00px;justify-content:flex-start"><p class="pp" style="text-align:left"><span style="font-size:26.67px;font-family:'Carlito','Calibri','Segoe UI','Helvetica Neue',Arial,sans-serif;font-weight:700;color:#000000">Shared Procedures</span></p></div></div>
+<div class="sh" style="left:148.00px;top:536.00px;width:406.67px;height:30.67px;border-radius:4.56px"><div class="tx" style="padding:0.00px 0.00px 0.00px 0.00px;justify-content:flex-start"><p class="pp" style="text-align:left"><span style="font-size:24.00px;font-family:'Carlito','Calibri','Segoe UI','Helvetica Neue',Arial,sans-serif;color:#4D4D4D">One version for every division</span></p></div></div>
+<div class="sh" style="left:600.00px;top:586.67px;width:620.00px;height:24.00px"><div class="tx" style="padding:4.80px 9.60px 4.80px 9.60px;justify-content:flex-start"><p class="pp" style="text-align:left"><span style="font-size:16.00px;font-family:'Carlito','Calibri','Segoe UI','Helvetica Neue',Arial,sans-serif;font-style:italic;color:#595959">Screen shows demo data</span></p></div></div>
+<div class="sh vidwrap" style="left:595.07px;top:186.67px;width:624.93px;height:388.00px"><video class="slidevid" src="assets/video/media8.mp4" poster="assets/img/image41.png" muted loop playsinline preload="none"></video></div>
+</section>
+<section class="slide" id="slide-15" data-n="15" style="background:#FFFFFF">
+<div class="sh" style="left:57.60px;top:658.56px;width:162.24px;height:44.16px"><img src="assets/img/image2.png" alt="American Muscle Docks &amp; Fabrication logo" style="width:100%;height:100%;object-fit:fill;display:block"></div>
+<div class="sh" style="left:240.00px;top:662.40px;width:768.00px;height:36.48px"><div class="tx" style="padding:0.00px 0.00px 0.00px 0.00px;justify-content:center"><p class="pp" style="text-align:left"><span style="font-size:13.33px;font-family:'Carlito','Calibri','Segoe UI','Helvetica Neue',Arial,sans-serif;color:#7A7A7A">Built to Fix Fragmentation&nbsp; |&nbsp; Built Tough. Built to Last.®</span></p></div></div>
+<div class="sh" style="left:1166.40px;top:662.40px;width:57.60px;height:36.48px"><div class="tx" style="padding:0.00px 0.00px 0.00px 0.00px;justify-content:center"><p class="pp" style="text-align:right"><span style="font-size:13.33px;font-family:'Carlito','Calibri','Segoe UI','Helvetica Neue',Arial,sans-serif;color:#7A7A7A">15</span></p></div></div>
+<div class="sh" style="left:57.60px;top:40.32px;width:864.00px;height:36.48px;border-radius:5.00px"><div class="tx" style="padding:0.00px 0.00px 0.00px 0.00px;justify-content:center"><p class="pp" style="text-align:left"><span style="font-size:18.67px;font-family:'Carlito','Calibri','Segoe UI','Helvetica Neue',Arial,sans-serif;font-weight:700;color:#CD0006;letter-spacing:4.000px">AMD OPERATIONS&nbsp; /&nbsp; LIVE DEMO</span></p></div></div>
+<div class="sh" style="left:57.60px;top:78.72px;width:1161.60px;height:81.60px;border-radius:5.00px"><div class="tx" style="padding:0.00px 0.00px 0.00px 0.00px;justify-content:flex-start"><p class="pp" style="text-align:left"><span style="font-size:50.67px;font-family:'Impact','Haettenschweiler','Anton','Arial Narrow Bold',sans-serif;color:#000000">See It Live</span></p></div></div>
+<div class="sh" style="left:1166.40px;top:662.40px;width:57.60px;height:36.48px"><div class="tx" style="padding:0.00px 0.00px 0.00px 0.00px;justify-content:center"><p class="pp" style="text-align:right"><span style="font-size:13.33px;font-family:'Carlito','Calibri','Segoe UI','Helvetica Neue',Arial,sans-serif;color:#7A7A7A">15</span></p></div></div>
+<div class="sh" style="left:57.60px;top:201.60px;width:1161.60px;height:316.80px;background:#CD0006;border-radius:5.00px"></div>
+<div class="sh" style="left:105.60px;top:288.00px;width:144.00px;height:144.00px;background:#000000;border-radius:5.00px"></div>
+<div class="sh" style="left:140.16px;top:322.56px;width:74.88px;height:74.88px"><img src="assets/img/image24.png" alt="" style="width:100%;height:100%;object-fit:fill;display:block"></div>
+<div class="sh" style="left:288.00px;top:305.28px;width:892.80px;height:86.40px;border-radius:5.00px"><div class="tx" style="padding:0.00px 0.00px 0.00px 0.00px;justify-content:center"><p class="pp" style="text-align:left"><a class="lnk" href="https://amdoperations.netlify.app" target="_blank" rel="noopener" style="font-size:53.33px;font-family:'Carlito','Calibri','Segoe UI','Helvetica Neue',Arial,sans-serif;font-weight:700;text-decoration:underline;color:#FFFFFF">Launch AMD Operations</a></p></div></div>
+<div class="sh" style="left:288.00px;top:396.48px;width:892.80px;height:57.60px;border-radius:5.00px"><div class="tx" style="padding:0.00px 0.00px 0.00px 0.00px;justify-content:center"><p class="pp" style="text-align:left"><a class="lnk" href="https://amdoperations.netlify.app" target="_blank" rel="noopener" style="font-size:34.67px;font-family:'Carlito','Calibri','Segoe UI','Helvetica Neue',Arial,sans-serif;text-decoration:underline;color:#FFFFFF">amdoperations.netlify.app</a><span style="font-size:34.67px;font-family:'Carlito','Calibri','Segoe UI','Helvetica Neue',Arial,sans-serif;text-decoration:underline;color:#FFFFFF">/demo</span></p></div></div>
+<div class="sh" style="left:288.00px;top:266.88px;width:384.00px;height:33.60px;border-radius:5.00px"><div class="tx" style="padding:0.00px 0.00px 0.00px 0.00px;justify-content:center"><p class="pp" style="text-align:left"><span style="font-size:21.33px;font-family:'Carlito','Calibri','Segoe UI','Helvetica Neue',Arial,sans-serif;font-weight:700;color:#FFFFFF;letter-spacing:4.000px">LIVE DEMO</span></p></div></div>
+<div class="sh" style="left:57.60px;top:547.20px;width:1161.60px;height:38.40px;border-radius:5.00px"><div class="tx" style="padding:0.00px 0.00px 0.00px 0.00px;justify-content:center"><p class="pp" style="text-align:left"><span style="font-size:26.67px;font-family:'Carlito','Calibri','Segoe UI','Helvetica Neue',Arial,sans-serif;color:#4D4D4D">Internal, password-protected application running on demo data</span></p></div></div>
+</section>
+<section class="slide" id="slide-16" data-n="16" style="background:#CD0006">
+<div class="sh" style="left:59.52px;top:49.92px;width:352.32px;height:95.04px"><img src="assets/img/image1.jpg" alt="American Muscle Docks &amp; Fabrication logo" style="width:100%;height:100%;object-fit:fill;display:block"></div>
+<div class="sh" style="left:67.20px;top:158.40px;width:787.20px;height:28.80px;border-radius:5.00px"><div class="tx" style="padding:0.00px 0.00px 0.00px 0.00px;justify-content:center"><p class="pp" style="text-align:left"><span style="font-size:14.67px;font-family:'Carlito','Calibri','Segoe UI','Helvetica Neue',Arial,sans-serif;font-weight:700;color:#FFFFFF">SHEET 13&nbsp; /&nbsp; FOR REVIEW</span></p></div></div>
+<div class="sh" style="left:67.20px;top:197.76px;width:729.60px;height:163.20px;border-radius:5.00px"><div class="tx" style="padding:0.00px 0.00px 0.00px 0.00px;justify-content:flex-start"><p class="pp" style="text-align:left"><span style="font-size:72.00px;font-family:'Impact','Haettenschweiler','Anton','Arial Narrow Bold',sans-serif;color:#FFFFFF">QUESTIONS?</span></p></div></div>
+<div class="sh" style="left:67.20px;top:398.18px;width:748.80px;height:33.32px;border-radius:4.13px"><div class="tx" style="padding:0.00px 0.00px 0.00px 0.00px;justify-content:center"><p class="pp" style="text-align:left"><span style="font-size:26.67px;font-family:'Carlito','Calibri','Segoe UI','Helvetica Neue',Arial,sans-serif;font-weight:700;color:#FFFFFF">American Muscle Docks &amp; Fabrication®</span></p></div></div>
+<div class="sh" style="left:67.20px;top:443.68px;width:748.80px;height:27.77px;border-radius:4.13px"><div class="tx" style="padding:0.00px 0.00px 0.00px 0.00px;justify-content:center"><p class="pp" style="text-align:left"><span style="font-size:21.33px;font-family:'Carlito','Calibri','Segoe UI','Helvetica Neue',Arial,sans-serif;font-weight:700;color:#FFFFFF">Built Tough. Built to Last.</span></p></div></div>
+<div class="sh" style="left:67.20px;top:478.95px;width:748.80px;height:25.39px;border-radius:4.13px"><div class="tx" style="padding:0.00px 0.00px 0.00px 0.00px;justify-content:center"><p class="pp" style="text-align:left"><span style="font-size:18.67px;font-family:'Carlito','Calibri','Segoe UI','Helvetica Neue',Arial,sans-serif;color:#FFFFFF">141 Sunset Avenue, Wellsburg, WV 26070&nbsp; |&nbsp; 800-223-3444&nbsp; |&nbsp; www.amdocks.com</span></p></div></div>
+<div class="sh" style="left:67.20px;top:509.67px;width:768.00px;height:25.39px;border-radius:4.13px"><div class="tx" style="padding:0.00px 0.00px 0.00px 0.00px;justify-content:center"><p class="pp" style="text-align:left"><span style="font-size:17.55px;font-family:'Carlito','Calibri','Segoe UI','Helvetica Neue',Arial,sans-serif;font-weight:700;color:#FFFFFF">LIVE:&nbsp; </span><a class="lnk" href="https://amdmarketingcommand.netlify.app" target="_blank" rel="noopener" style="font-size:17.55px;font-family:'Carlito','Calibri','Segoe UI','Helvetica Neue',Arial,sans-serif;font-weight:700;text-decoration:underline;color:#FFFFFF">amdmarketingcommand.netlify.app</a><span style="font-size:17.55px;font-family:'Carlito','Calibri','Segoe UI','Helvetica Neue',Arial,sans-serif;font-weight:700;text-decoration:underline;color:#FFFFFF">/demo</span><span style="font-size:17.55px;font-family:'Carlito','Calibri','Segoe UI','Helvetica Neue',Arial,sans-serif;color:#FFFFFF">&nbsp; |&nbsp; </span><a class="lnk" href="https://amdoperations.netlify.app" target="_blank" rel="noopener" style="font-size:17.55px;font-family:'Carlito','Calibri','Segoe UI','Helvetica Neue',Arial,sans-serif;font-weight:700;text-decoration:underline;color:#FFFFFF">amdoperations.netlify.app</a><span style="font-size:17.55px;font-family:'Carlito','Calibri','Segoe UI','Helvetica Neue',Arial,sans-serif;font-weight:700;text-decoration:underline;color:#FFFFFF">/demo</span></p></div></div>
+<div class="sh" style="left:67.20px;top:560.38px;width:633.60px;height:23.80px;background:#000000;border-radius:4.13px"></div>
+<div class="sh" style="left:81.60px;top:560.38px;width:153.60px;height:23.80px;border-radius:4.13px"><div class="tx" style="padding:0.00px 0.00px 0.00px 0.00px;justify-content:center"><p class="pp" style="text-align:left"><span style="font-size:13.33px;font-family:'Carlito','Calibri','Segoe UI','Helvetica Neue',Arial,sans-serif;font-weight:700;color:#B3B3B3;letter-spacing:1.333px">TITLE</span></p></div></div>
+<div class="sh" style="left:240.00px;top:560.38px;width:446.40px;height:23.80px;border-radius:4.13px"><div class="tx" style="padding:0.00px 0.00px 0.00px 0.00px;justify-content:center"><p class="pp" style="text-align:left"><span style="font-size:14.67px;font-family:'Carlito','Calibri','Segoe UI','Helvetica Neue',Arial,sans-serif;font-weight:700;color:#FFFFFF">BUILT TO FIX FRAGMENTATION</span></p></div></div>
+<div class="sh" style="left:67.20px;top:591.10px;width:633.60px;height:23.80px;background:#000000;border-radius:4.13px"></div>
+<div class="sh" style="left:81.60px;top:591.10px;width:153.60px;height:23.80px;border-radius:4.13px"><div class="tx" style="padding:0.00px 0.00px 0.00px 0.00px;justify-content:center"><p class="pp" style="text-align:left"><span style="font-size:13.33px;font-family:'Carlito','Calibri','Segoe UI','Helvetica Neue',Arial,sans-serif;font-weight:700;color:#B3B3B3;letter-spacing:1.333px">PRESENTED BY</span></p></div></div>
+<div class="sh" style="left:240.00px;top:591.10px;width:446.40px;height:23.80px;border-radius:4.13px"><div class="tx" style="padding:0.00px 0.00px 0.00px 0.00px;justify-content:center"><p class="pp" style="text-align:left"><span style="font-size:14.67px;font-family:'Carlito','Calibri','Segoe UI','Helvetica Neue',Arial,sans-serif;font-weight:700;color:#FFFFFF">CHAD, MARKETING MANAGER</span></p></div></div>
+<div class="sh" style="left:67.20px;top:621.82px;width:633.60px;height:23.80px;background:#000000;border-radius:4.13px"></div>
+<div class="sh" style="left:81.60px;top:621.82px;width:153.60px;height:23.80px;border-radius:4.13px"><div class="tx" style="padding:0.00px 0.00px 0.00px 0.00px;justify-content:center"><p class="pp" style="text-align:left"><span style="font-size:13.33px;font-family:'Carlito','Calibri','Segoe UI','Helvetica Neue',Arial,sans-serif;font-weight:700;color:#B3B3B3;letter-spacing:1.333px">EVENT</span></p></div></div>
+<div class="sh" style="left:240.00px;top:621.82px;width:446.40px;height:23.80px;border-radius:4.13px"><div class="tx" style="padding:0.00px 0.00px 0.00px 0.00px;justify-content:center"><p class="pp" style="text-align:left"><span style="font-size:14.67px;font-family:'Carlito','Calibri','Segoe UI','Helvetica Neue',Arial,sans-serif;font-weight:700;color:#FFFFFF">CANOPY FEST AI 2026</span></p></div></div>
+<div class="sh" style="left:576.54px;top:159.50px;width:816.00px;height:544.00px"><img src="assets/img/image42.png" alt="Picture 17" style="width:100%;height:100%;object-fit:fill;display:block"></div>
+</section>
+  </div>
+</div>
+
+<button class="edge" id="prev" aria-label="Previous slide">
+  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M15 18l-6-6 6-6"/></svg>
+</button>
+<button class="edge" id="next" aria-label="Next slide">
+  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M9 18l6-6-6-6"/></svg>
+</button>
+
+<div id="bar">
+  <button id="bGrid" title="Overview (O)">Slides</button>
+  <button id="bNotes" title="Speaker notes (N)">Notes</button>
+  <span id="count">1 / 1</span>
+  <div id="track"><div id="fill"></div></div>
+  <span id="hint">&larr; &rarr; to navigate &middot; F fullscreen &middot; ? help</span>
+  <button id="bFull" title="Fullscreen (F)">Full</button>
+  <button id="bHelp" title="Shortcuts (?)">?</button>
+</div>
+
+<aside id="notes" aria-live="polite">
+  <h3>Speaker notes</h3>
+  <p id="notesBody"></p>
+</aside>
+
+<div id="grid">
+  <h2>All slides &mdash; click to jump</h2>
+  <div id="gridItems"></div>
+</div>
+
+<div id="help">
+  <div class="card">
+    <h3>Keyboard shortcuts</h3>
+    <dl>
+      <dt><kbd>&rarr;</kbd> <kbd>&darr;</kbd> <kbd>Space</kbd></dt><dd>Next slide</dd>
+      <dt><kbd>&larr;</kbd> <kbd>&uarr;</kbd></dt><dd>Previous slide</dd>
+      <dt><kbd>Home</kbd> <kbd>End</kbd></dt><dd>First / last slide</dd>
+      <dt><kbd>1</kbd>&ndash;<kbd>9</kbd></dt><dd>Jump to slide</dd>
+      <dt><kbd>O</kbd></dt><dd>Slide overview</dd>
+      <dt><kbd>N</kbd></dt><dd>Speaker notes</dd>
+      <dt><kbd>F</kbd></dt><dd>Fullscreen</dd>
+      <dt><kbd>P</kbd></dt><dd>Play / pause video</dd>
+      <dt><kbd>Esc</kbd></dt><dd>Close panel</dd>
+    </dl>
+  </div>
+</div>
+
+<script>
+const META = [
+{
+"n": 1,
+"title": "BUILT TO FIX FRAGMENTATION",
+"eyebrow": "",
+"notes": "",
+"bg": "#CD0006"
+},
+{
+"n": 2,
+"title": "More Than Ten Tools. No Single View",
+"eyebrow": "MARKETING COMMAND  /  THE PROBLEM",
+"notes": "",
+"bg": "#1A1A1A"
+},
+{
+"n": 3,
+"title": "One Login. Every Channel",
+"eyebrow": "MARKETING COMMAND  /  THE SOLUTION",
+"notes": "",
+"bg": "#FFFFFF"
+},
+{
+"n": 4,
+"title": "Everything Marketing Tracks, in One Place",
+"eyebrow": "MARKETING COMMAND  /  WHAT IT COVERS",
+"notes": "",
+"bg": "#FFFFFF"
+},
+{
+"n": 5,
+"title": "One Home Screen Opens Every Marketing Channel",
+"eyebrow": "MARKETING COMMAND  /  OVERVIEW",
+"notes": "",
+"bg": "#FFFFFF"
+},
+{
+"n": 6,
+"title": "Sales and Ad Results Read From the Same App",
+"eyebrow": "MARKETING COMMAND  /  SALES AND ADS",
+"notes": "",
+"bg": "#FFFFFF"
+},
+{
+"n": 7,
+"title": "Leadership Gets the Numbers Automatically",
+"eyebrow": "MARKETING COMMAND  /  REPORTING",
+"notes": "",
+"bg": "#FFFFFF"
+},
+{
+"n": 8,
+"title": "See It Live",
+"eyebrow": "MARKETING COMMAND  /  LIVE DEMO",
+"notes": "Log in to amdmarketingcommand.netlify.app before the presentation so the click goes straight to the dashboard.",
+"bg": "#FFFFFF"
+},
+{
+"n": 9,
+"title": "Paper, Phone Calls, and Word of Mouth",
+"eyebrow": "AMD OPERATIONS  /  THE PROBLEM",
+"notes": "",
+"bg": "#1A1A1A"
+},
+{
+"n": 10,
+"title": "One Portal for Every Division",
+"eyebrow": "AMD OPERATIONS  /  THE SOLUTION",
+"notes": "",
+"bg": "#FFFFFF"
+},
+{
+"n": 11,
+"title": "Work Orders, Requests and Stock on Live Screens",
+"eyebrow": "AMD OPERATIONS  /  DASHBOARD AND INVENTORY",
+"notes": "",
+"bg": "#FFFFFF"
+},
+{
+"n": 12,
+"title": "Every Division Has Its Own Queue",
+"eyebrow": "AMD OPERATIONS  /  DIVISION QUEUES",
+"notes": "",
+"bg": "#FFFFFF"
+},
+{
+"n": 13,
+"title": "Build Jobs on the Big Screen",
+"eyebrow": "AMD OPERATIONS  /  BUILD JOBS",
+"notes": "",
+"bg": "#FFFFFF"
+},
+{
+"n": 14,
+"title": "Day-to-Day Operations in the Same Portal",
+"eyebrow": "AMD OPERATIONS  /  CORE OPERATIONS",
+"notes": "",
+"bg": "#FFFFFF"
+},
+{
+"n": 15,
+"title": "See It Live",
+"eyebrow": "AMD OPERATIONS  /  LIVE DEMO",
+"notes": "Log in to amdoperations.netlify.app before the presentation so the click goes straight to the dashboard.",
+"bg": "#FFFFFF"
+},
+{
+"n": 16,
+"title": "QUESTIONS?",
+"eyebrow": "",
+"notes": "",
+"bg": "#CD0006"
+}
+];
+const slides = Array.from(document.querySelectorAll('.slide'));
+const stage  = document.getElementById('stage');
+const fill   = document.getElementById('fill');
+const count  = document.getElementById('count');
+const notesBody = document.getElementById('notesBody');
+let idx = 0;
+
+/* ---------- shrink text that overflows its box ----------
+   The deck is laid out for Calibri. On a machine without it the browser
+   substitutes a wider face, which can push a line that PowerPoint fitted on
+   one row into two and spill it over the artwork below. Any box that
+   overflows gets its type eased down until it fits again. */
+function fitText(){
+  document.querySelectorAll('.slide > .sh').forEach(sh => {
+    const tx = sh.querySelector(':scope > .tx');
+    if (!tx) return;
+    const runs = tx.querySelectorAll('span, a.lnk');
+    if (!runs.length) return;
+    runs.forEach(r => { if (!r.dataset.fs) r.dataset.fs = parseFloat(getComputedStyle(r).fontSize); });
+    const set = k => runs.forEach(r => r.style.fontSize = (r.dataset.fs * k).toFixed(2) + 'px');
+    set(1);
+    /* Several boxes are deliberately shorter than their own line — a 0.31in
+       label holding 20pt text — and PowerPoint simply lets those spill, with
+       nothing underneath to hit. Only a whole extra line is a substitution
+       artifact worth correcting, so ignore anything under half a line. */
+    const slack = runs[0].dataset.fs * 1.25 * 0.5;
+    const overflows = () => sh.scrollHeight - sh.clientHeight > slack;
+    if (!overflows()) return;
+    for (let k = 0.97; k >= 0.74; k -= 0.03){
+      set(k);
+      if (!overflows()) return;
+    }
+  });
+}
+
+/* ---------- scale to fit ---------- */
+function fit(){
+  const pad = 56;
+  const w = window.innerWidth  - 24;
+  const h = window.innerHeight - pad;
+  document.documentElement.style.setProperty('--scale', Math.min(w/1280, h/720).toFixed(4));
+}
+window.addEventListener('resize', fit);
+fit();
+
+/* ---------- navigation ---------- */
+function show(i, push){
+  idx = Math.max(0, Math.min(slides.length - 1, i));
+  slides.forEach((s, k) => s.classList.toggle('active', k === idx));
+  count.textContent = (idx + 1) + ' / ' + slides.length;
+  fill.style.width = ((idx + 1) / slides.length * 100) + '%';
+  const note = (META[idx] && META[idx].notes) || '';
+  notesBody.textContent = note || 'No notes for this slide.';
+  document.title = (META[idx] && META[idx].title ? META[idx].title + ' — ' : '')
+                 + 'Built to Fix Fragmentation';
+  playVideos();
+  if (push !== false) history.replaceState(null, '', '#' + (idx + 1));
+}
+function playVideos(){
+  slides.forEach((s, k) => {
+    s.querySelectorAll('video').forEach(v => {
+      if (k === idx){
+        if (!v.getAttribute('src')) return;
+        v.play().catch(() => {});
+      } else { v.pause(); v.currentTime = 0; }
+    });
+  });
+}
+const next = () => show(idx + 1);
+const prev = () => show(idx - 1);
+
+document.getElementById('next').onclick = next;
+document.getElementById('prev').onclick = prev;
+
+/* ---------- panels ---------- */
+const body = document.body;
+function toggle(cls){
+  if (cls === 'grid-open') buildGrid();
+  ['grid-open','notes-open','help-open'].forEach(c => { if (c !== cls) body.classList.remove(c); });
+  body.classList.toggle(cls);
+}
+document.getElementById('bGrid').onclick  = () => toggle('grid-open');
+document.getElementById('bNotes').onclick = () => body.classList.toggle('notes-open');
+document.getElementById('bHelp').onclick  = () => toggle('help-open');
+document.getElementById('bFull').onclick  = fullscreen;
+function fullscreen(){
+  if (document.fullscreenElement) document.exitFullscreen();
+  else document.documentElement.requestFullscreen().catch(() => {});
+}
+
+/* ---------- keyboard ---------- */
+addEventListener('keydown', e => {
+  if (e.metaKey || e.ctrlKey || e.altKey) return;
+  const k = e.key;
+  if (k === 'Escape'){ body.classList.remove('grid-open','help-open'); return; }
+  if (k === 'ArrowRight' || k === 'ArrowDown' || k === 'PageDown' || k === ' '){ e.preventDefault(); next(); }
+  else if (k === 'ArrowLeft' || k === 'ArrowUp' || k === 'PageUp'){ e.preventDefault(); prev(); }
+  else if (k === 'Home'){ show(0); }
+  else if (k === 'End'){ show(slides.length - 1); }
+  else if (/^[1-9]$/.test(k)){ show(parseInt(k, 10) - 1); }
+  else if (k === 'o' || k === 'O'){ toggle('grid-open'); }
+  else if (k === 'n' || k === 'N'){ body.classList.toggle('notes-open'); }
+  else if (k === 'f' || k === 'F'){ fullscreen(); }
+  else if (k === '?'){ toggle('help-open'); }
+  else if (k === 'p' || k === 'P'){
+    slides[idx].querySelectorAll('video').forEach(v => v.paused ? v.play() : v.pause());
+  }
+});
+
+/* ---------- touch ---------- */
+let tx = 0, ty = 0;
+addEventListener('touchstart', e => { tx = e.changedTouches[0].clientX; ty = e.changedTouches[0].clientY; }, {passive:true});
+addEventListener('touchend', e => {
+  const dx = e.changedTouches[0].clientX - tx;
+  const dy = e.changedTouches[0].clientY - ty;
+  if (Math.abs(dx) > 55 && Math.abs(dx) > Math.abs(dy)) dx < 0 ? next() : prev();
+}, {passive:true});
+
+/* ---------- overview grid (built on first open, after text has been fitted) ---------- */
+const gridItems = document.getElementById('gridItems');
+let gridBuilt = false;
+function buildGrid(){
+  if (gridBuilt) return;
+  gridBuilt = true;
+  slides.forEach((s, i) => {
+    const m = META[i] || {};
+    const b = document.createElement('button');
+    b.className = 'thumb';
+    b.innerHTML = '<div class="shot" style="background:' + (m.bg || '#fff') + '"></div>'
+      + '<div class="cap"><span class="nm">' + (i + 1) + '</span>'
+      + '<div class="eb">' + (m.eyebrow || '&nbsp;') + '</div>'
+      + '<div class="tt">' + (m.title || 'Slide ' + (i + 1)) + '</div></div>';
+    const mini = s.cloneNode(true);
+    mini.removeAttribute('id');
+    mini.className = 'mini';
+    mini.querySelectorAll('video').forEach(v => {
+      const img = document.createElement('img');
+      img.src = v.getAttribute('poster') || '';
+      img.style.cssText = 'width:100%;height:100%;object-fit:cover;display:block';
+      v.replaceWith(img);
+    });
+    b.querySelector('.shot').appendChild(mini);
+    b.onclick = () => { body.classList.remove('grid-open'); show(i); };
+    gridItems.appendChild(b);
+  });
+  sizeThumbs();
+}
+function sizeThumbs(){
+  document.querySelectorAll('.thumb .shot').forEach(shot => {
+    const mini = shot.querySelector('.mini');
+    if (mini) mini.style.transform = 'scale(' + (shot.clientWidth / 1280) + ')';
+  });
+}
+addEventListener('resize', sizeThumbs);
+new ResizeObserver(sizeThumbs).observe(gridItems);
+
+/* ---------- boot ---------- */
+fitText();
+if (document.fonts && document.fonts.ready){
+  document.fonts.ready.then(() => {
+    fitText();
+    if (gridBuilt){ gridItems.innerHTML = ''; gridBuilt = false; buildGrid(); }
+  });
+}
+const start = parseInt((location.hash || '').replace('#',''), 10);
+show(Number.isFinite(start) && start > 0 ? start - 1 : 0, false);
+addEventListener('hashchange', () => {
+  const h = parseInt(location.hash.replace('#',''), 10);
+  if (Number.isFinite(h) && h - 1 !== idx) show(h - 1, false);
+});
+</script>
+</body>
+</html>
